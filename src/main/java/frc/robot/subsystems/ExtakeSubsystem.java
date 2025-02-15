@@ -1,0 +1,35 @@
+package frc.robot.subsystems;
+
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class ExtakeSubsystem extends SubsystemBase{
+    private final TalonFX liftMotor1 = new TalonFX(31, "rio");
+    private final TalonFX liftMotor2 = new TalonFX(32, "rio");
+
+
+
+    public ExtakeSubsystem(){
+        // in init function, set slot 0 gains
+        var slot0Configs = new Slot0Configs();
+        slot0Configs.kP = 2.4; // An error of 1 rotation results in 2.4 V output
+        slot0Configs.kI = 0; // no output for integrated error
+        slot0Configs.kD = 0.1; // A velocity of 1 rps results in 0.1 V output
+
+        liftMotor1.getConfigurator().apply(slot0Configs);
+    }
+
+    public void periodic(){
+        
+    }
+
+    public void liftGoToPos(double position){
+        final PositionVoltage m_request = new PositionVoltage(0).withSlot(0);
+
+        liftMotor1.setControl(m_request.withPosition(position));
+        liftMotor2.setControl(liftMotor1.getAppliedControl());
+    }
+
+}
