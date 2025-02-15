@@ -1,9 +1,12 @@
 package frc.robot.subsystems;
 
+import java.util.Arrays;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
 public class ExtakeSubsystem extends SubsystemBase{
     private final TalonFX liftMotor1 = new TalonFX(31, "rio");
@@ -25,11 +28,12 @@ public class ExtakeSubsystem extends SubsystemBase{
         
     }
 
-    public void liftGoToPos(double position){
+    public Command liftGoToPosCommand(double position){
         final PositionVoltage m_request = new PositionVoltage(0).withSlot(0);
-
-        liftMotor1.setControl(m_request.withPosition(position));
-        liftMotor2.setControl(liftMotor1.getAppliedControl());
+         return run(() -> {
+            liftMotor1.setControl(m_request.withPosition(position));
+            liftMotor2.setControl(liftMotor1.getAppliedControl());
+         });
     }
 
 }
