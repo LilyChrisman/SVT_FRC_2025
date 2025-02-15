@@ -143,8 +143,8 @@ public class RobotContainer
                               );
       driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.back().whileTrue(Commands.none());
-      driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverXbox.rightBumper().onTrue(Commands.none());
+      driverXbox.leftBumper().whileTrue(Commands.run(extake::release));
+      driverXbox.rightBumper().whileTrue(Commands.run(extake::grab));
     }
 
   }

@@ -1,9 +1,8 @@
 package frc.robot.subsystems;
 
-import java.util.Arrays;
-
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -11,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class ExtakeSubsystem extends SubsystemBase{
     private final TalonFX liftMotor1 = new TalonFX(31, "rio");
     private final TalonFX liftMotor2 = new TalonFX(32, "rio");
+    private final TalonFX grabberMotor = new TalonFX(33, "rio");
 
 
 
@@ -34,6 +34,16 @@ public class ExtakeSubsystem extends SubsystemBase{
             liftMotor1.setControl(m_request.withPosition(position));
             liftMotor2.setControl(liftMotor1.getAppliedControl());
          });
+    }
+
+    public Command grab(){
+        final VoltageOut m_request = new VoltageOut(0.5);
+        return run(() -> grabberMotor.setControl(m_request));
+    }
+
+    public Command release(){
+        final VoltageOut m_request = new VoltageOut(-0.5);
+        return run(() -> grabberMotor.setControl(m_request));
     }
 
 }
