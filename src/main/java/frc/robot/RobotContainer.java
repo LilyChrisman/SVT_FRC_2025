@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -11,6 +12,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -37,6 +40,8 @@ public class RobotContainer
   );
 
   private final ExtakeSubsystem extake = new ExtakeSubsystem();
+
+  private final SendableChooser<Command> autoChooser;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -88,6 +93,16 @@ public class RobotContainer
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    NamedCommands.registerCommand("grabCoral", extake.grab());
+    NamedCommands.registerCommand("releaseCoral", extake.release());
+    NamedCommands.registerCommand("LiftScoreHigh", extake.liftGoToPosCommand(extake.LIFT_SCORE_L4));
+    NamedCommands.registerCommand("LiftPickupCoral", extake.liftGoToPosCommand(extake.LIFT_PICKUP_CORAL));
+    NamedCommands.registerCommand("ArmScoreHigh", extake.armGoToPosCommand(extake.ARM_EXTAKE_HIGH));
+    NamedCommands.registerCommand("ArmPickupCoral", extake.armGoToPosCommand(extake.ARM_INTAKE_CORAL));
+    NamedCommands.registerCommand("ArmScoreLow", extake.armGoToPosCommand(extake.ARM_EXTAKE_LOW));
+
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   /**
@@ -136,6 +151,7 @@ public class RobotContainer
     } else
     {
       driverXbox.a().onTrue(extake.liftGoToPosCommand(10));
+      driverXbox.y().onTrue(extake.liftGoToPosCommand(0));
       driverXbox.x().onTrue(Commands.runOnce(drivebase::updateVisionOdometry));
       driverXbox.b().whileTrue(
           drivebase.driveToPose(
@@ -157,7 +173,7 @@ public class RobotContainer
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("New Auto");
+    return autoChooser.getSelected();
   }
 
   public void setMotorBrake(boolean brake)
