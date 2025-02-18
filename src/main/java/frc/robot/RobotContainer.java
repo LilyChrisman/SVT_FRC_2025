@@ -140,8 +140,9 @@ public class RobotContainer
       driverXbox.x().onTrue(Commands.runOnce(drivebase::updateVisionOdometry));
       driverXbox.b().whileTrue(
           drivebase.driveToPose(
-              new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
-                              );
+              new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))
+          )
+      );
       driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.run(extake::release));

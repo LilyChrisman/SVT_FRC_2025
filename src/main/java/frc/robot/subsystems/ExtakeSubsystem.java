@@ -8,9 +8,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ExtakeSubsystem extends SubsystemBase{
-    private final TalonFX liftMotor1 = new TalonFX(31, "rio");
-    private final TalonFX liftMotor2 = new TalonFX(32, "rio");
-    private final TalonFX grabberMotor = new TalonFX(33, "rio");
+    private final TalonFX liftMotor1 = new TalonFX(31, "");
+    private final TalonFX liftMotor2 = new TalonFX(32, "");
+    private final TalonFX grabberMotor = new TalonFX(33, "");
 
 
 
@@ -31,6 +31,7 @@ public class ExtakeSubsystem extends SubsystemBase{
     public Command liftGoToPosCommand(double position){
         final PositionVoltage m_request = new PositionVoltage(0).withSlot(0);
          return run(() -> {
+            System.out.println("Test Print");
             liftMotor1.setControl(m_request.withPosition(position));
             liftMotor2.setControl(liftMotor1.getAppliedControl());
          });
