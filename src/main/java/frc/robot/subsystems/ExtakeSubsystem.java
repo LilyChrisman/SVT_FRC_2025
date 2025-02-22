@@ -65,6 +65,7 @@ public class ExtakeSubsystem extends SubsystemBase{
     public Command liftGoToPosCommand(double position){
         final PositionVoltage m_request = new PositionVoltage(0).withSlot(0);
          return run(() -> {
+            System.out.println("Test Print");
             liftMotor1.setControl(m_request.withPosition(position));
             liftMotor2.setControl(m_request.withPosition(position));
          });

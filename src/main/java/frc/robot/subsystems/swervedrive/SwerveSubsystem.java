@@ -98,12 +98,17 @@ public class SwerveSubsystem extends SubsystemBase
     }
     swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
     swerveDrive.setCosineCompensator(false);//!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
-    swerveDrive.setAngularVelocityCompensation(true,
-                                               true,
-                                               0.1); //Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
-    swerveDrive.setModuleEncoderAutoSynchronize(false,
-                                                1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
-    swerveDrive.synchronizeModuleEncoders();
+    swerveDrive.setAngularVelocityCompensation(
+      true,
+      true,
+      0.1
+    ); //Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
+    swerveDrive.setModuleEncoderAutoSynchronize(
+      false,
+      1
+    ); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
+    swerveDrive.setMotorIdleMode(true); // make them not coast like California
+    swerveDrive.synchronizeModuleEncoders(); // make the robot not stupid
   }
   /**
    * Construct the swerve drive.
@@ -113,11 +118,15 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg)
   {
-    swerveDrive = new SwerveDrive(driveCfg,
-                                  controllerCfg,
-                                  Constants.MAX_SPEED,
-                                  new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
-                                             Rotation2d.fromDegrees(0)));
+    swerveDrive = new SwerveDrive(
+      driveCfg,
+      controllerCfg,
+      Constants.MAX_SPEED,
+      new Pose2d(new Translation2d(
+        Meter.of(2), Meter.of(0)),
+        Rotation2d.fromDegrees(0)
+      )
+    );
   }
   
   @Override
@@ -159,7 +168,7 @@ public class SwerveSubsystem extends SubsystemBase
                   speedsRobotRelative,
                   swerveDrive.kinematics.toSwerveModuleStates(speedsRobotRelative),
                   moduleFeedForwards.linearForces()
-                               );
+              );
             } else
             {
               swerveDrive.setChassisSpeeds(speedsRobotRelative);
@@ -189,7 +198,7 @@ public class SwerveSubsystem extends SubsystemBase
           },
           this
           // Reference to this subsystem to set requirements
-                           );
+      );
 
     } catch (Exception e)
     {
@@ -234,7 +243,7 @@ public class SwerveSubsystem extends SubsystemBase
         pose,
         constraints,
         edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
-                                     );
+    );
   }
 
   /**
