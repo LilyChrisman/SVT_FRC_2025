@@ -19,7 +19,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExtakeSubsystem;
+import frc.robot.subsystems.GrabberSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -41,6 +43,8 @@ public class RobotContainer
   );
 
   private final ExtakeSubsystem extake = new ExtakeSubsystem();
+  private final GrabberSubsystem grabber = new GrabberSubsystem();
+  private final ArmSubsystem arm = new ArmSubsystem();
 
   private final SendableChooser<Command> autoChooser;
 
@@ -94,13 +98,13 @@ public class RobotContainer
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
-    NamedCommands.registerCommand("grabCoral", extake.grab());
-    NamedCommands.registerCommand("releaseCoral", extake.release());
+    NamedCommands.registerCommand("grabCoral", grabber.grab2());
+    NamedCommands.registerCommand("releaseCoral", grabber.release());
     NamedCommands.registerCommand("LiftScoreHigh", extake.liftGoToPosCommand(extake.LIFT_SCORE_L4));
     NamedCommands.registerCommand("LiftPickupCoral", extake.liftGoToPosCommand(extake.LIFT_PICKUP_CORAL));
-    NamedCommands.registerCommand("ArmScoreHigh", extake.armGoToPosCommand(extake.ARM_EXTAKE_HIGH));
-    NamedCommands.registerCommand("ArmPickupCoral", extake.armGoToPosCommand(extake.ARM_INTAKE_CORAL));
-    NamedCommands.registerCommand("ArmScoreLow", extake.armGoToPosCommand(extake.ARM_EXTAKE_LOW));
+    NamedCommands.registerCommand("ArmScoreHigh", arm.armGoToPosCommand(extake.ARM_EXTAKE_HIGH));
+    NamedCommands.registerCommand("ArmPickupCoral", arm.armGoToPosCommand(extake.ARM_INTAKE_CORAL));
+    NamedCommands.registerCommand("ArmScoreLow", arm.armGoToPosCommand(extake.ARM_EXTAKE_LOW));
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -154,27 +158,27 @@ public class RobotContainer
     {
       driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       utilityController.a().onTrue(Commands.deadline(
-        extake.armGoToPosCommand(extake.ARM_INTAKE_CORAL),
+        arm.armGoToPosCommand(extake.ARM_INTAKE_CORAL),
         extake.liftGoToPosCommand(extake.LIFT_PICKUP_CORAL),
-        extake.grab2()
+        grabber.grab2()
       ));
       utilityController.leftBumper().onTrue(Commands.deadline(
-        extake.release(),
-        extake.armGoToPosCommand(extake.ARM_INTAKE_CORAL)
+        grabber.release(),
+        arm.armGoToPosCommand(extake.ARM_INTAKE_CORAL)
       ));
       utilityController.y().onTrue(Commands.deadline(
         extake.liftGoToPosCommand(extake.LIFT_SCORE_L4),
-        extake.armGoToPosCommand(extake.ARM_EXTAKE_HIGH)
+        arm.armGoToPosCommand(extake.ARM_EXTAKE_HIGH)
       ));
       utilityController.x().onTrue(Commands.deadline(
         extake.liftGoToPosCommand(extake.LIFT_SCORE_L3),
-        extake.armGoToPosCommand(extake.ARM_EXTAKE_HIGH)
+        arm.armGoToPosCommand(extake.ARM_EXTAKE_HIGH)
       ));
       utilityController.b().onTrue(Commands.deadline(
         extake.liftGoToPosCommand(extake.LIFT_SCORE_L1),
-        extake.armGoToPosCommand(extake.ARM_EXTAKE_LOW)
+        arm.armGoToPosCommand(extake.ARM_EXTAKE_LOW)
       ));
-      utilityController.rightBumper().onTrue(Commands.runOnce(extake::grab2));
+      utilityController.rightBumper().onTrue(Commands.runOnce(grabber::grab2));
     }
   }
 
