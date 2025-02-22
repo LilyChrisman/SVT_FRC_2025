@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class ExtakeSubsystem extends SubsystemBase{
     private final TalonFX liftMotor1 = new TalonFX(31, "");
     private final TalonFX liftMotor2 = new TalonFX(32, "");
-    private final TalonFX grabberMotor = new TalonFX(33, "");
-    private final TalonFX armMotor = new TalonFX(34, "");
+    private final TalonFX grabberMotor = new TalonFX(42, "");
+    private final TalonFX armMotor = new TalonFX(41, "");
 
     public final double LIFT_SCORE_L1 = 0;
     public final double LIFT_SCORE_L2 = 0;
