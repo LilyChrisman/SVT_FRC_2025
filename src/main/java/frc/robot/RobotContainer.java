@@ -34,6 +34,7 @@ public class RobotContainer
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandXboxController driverXbox = new CommandXboxController(0);
+  final         CommandXboxController utilityController = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(
     new File(Filesystem.getDeployDirectory(), "swerve")
@@ -151,19 +152,30 @@ public class RobotContainer
       driverXbox.rightBumper().onTrue(Commands.none());
     } else
     {
-      driverXbox.a().onTrue(extake.liftGoToPosCommand(10));
-      driverXbox.y().onTrue(extake.liftGoToPosCommand(0));
-      driverXbox.x().onTrue(Commands.runOnce(drivebase::updateVisionOdometry));
-      driverXbox.b().whileTrue(
-          drivebase.driveToPose(
-              new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
-                              );
       driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverXbox.back().whileTrue(Commands.none());
-      driverXbox.leftBumper().whileTrue(Commands.run(extake::release));
-      driverXbox.rightBumper().whileTrue(Commands.run(extake::grab));
+      utilityController.a().onTrue(Commands.deadline(
+        extake.armGoToPosCommand(extake.ARM_INTAKE_CORAL),
+        extake.liftGoToPosCommand(extake.LIFT_PICKUP_CORAL),
+        extake.grab2()
+      ));
+      utilityController.leftBumper().onTrue(Commands.deadline(
+        extake.release(),
+        extake.armGoToPosCommand(extake.ARM_INTAKE_CORAL)
+      ));
+      utilityController.y().onTrue(Commands.deadline(
+        extake.liftGoToPosCommand(extake.LIFT_SCORE_L4),
+        extake.armGoToPosCommand(extake.ARM_EXTAKE_HIGH)
+      ));
+      utilityController.x().onTrue(Commands.deadline(
+        extake.liftGoToPosCommand(extake.LIFT_SCORE_L3),
+        extake.armGoToPosCommand(extake.ARM_EXTAKE_HIGH)
+      ));
+      utilityController.b().onTrue(Commands.deadline(
+        extake.liftGoToPosCommand(extake.LIFT_SCORE_L1),
+        extake.armGoToPosCommand(extake.ARM_EXTAKE_LOW)
+      ));
+      utilityController.rightBumper().onTrue(Commands.runOnce(extake::grab2));
     }
-
   }
 
   /**

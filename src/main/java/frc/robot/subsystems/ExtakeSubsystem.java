@@ -2,17 +2,24 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class ExtakeSubsystem extends SubsystemBase{
+    /** Motors for lift */
     private final TalonFX liftMotor1 = new TalonFX(31, "rio");
     private final TalonFX liftMotor2 = new TalonFX(32, "rio");
+    /** Motor for coral intake */
     private final TalonFX grabberMotor = new TalonFX(33, "rio");
+    /** Motor for arm on the lift that has the grabber on the end */
     private final TalonFX armMotor = new TalonFX(34, "rio");
+    private final AnalogInput grabberSensor = new AnalogInput(0);
 
     public final double LIFT_SCORE_L1 = 0;
     public final double LIFT_SCORE_L2 = 0;
@@ -20,9 +27,11 @@ public class ExtakeSubsystem extends SubsystemBase{
     public final double LIFT_SCORE_L4 = 0;
     public final double LIFT_BOTTOM = 0;
     public final double LIFT_PICKUP_CORAL = 0;
+    
     public final double ARM_EXTAKE_HIGH = 0;
     public final double ARM_INTAKE_CORAL = 0;
     public final double ARM_EXTAKE_LOW = 0;
+    
 
 
 
@@ -38,8 +47,15 @@ public class ExtakeSubsystem extends SubsystemBase{
         slot1Configs.kI = 0; // no output for integrated error
         slot1Configs.kD = 0;
 
+        var slot2Configs = new Slot2Configs();
+        slot2Configs.kP = 0.5;
+        slot2Configs.kI = 0; // no output for integrated error
+        slot2Configs.kD = 0;
+
         liftMotor1.getConfigurator().apply(slot0Configs);
+        liftMotor2.getConfigurator().apply(slot0Configs);
         armMotor.getConfigurator().apply(slot1Configs);
+        grabberMotor.getConfigurator().apply(slot2Configs);
     }
 
     public void periodic(){
@@ -50,7 +66,7 @@ public class ExtakeSubsystem extends SubsystemBase{
         final PositionVoltage m_request = new PositionVoltage(0).withSlot(0);
          return run(() -> {
             liftMotor1.setControl(m_request.withPosition(position));
-            liftMotor2.setControl(liftMotor1.getAppliedControl());
+            liftMotor2.setControl(m_request.withPosition(position));
          });
     }
 
@@ -62,13 +78,22 @@ public class ExtakeSubsystem extends SubsystemBase{
     }
 
     public Command grab(){
-        final VoltageOut m_request = new VoltageOut(0.5);
-        return run(() -> grabberMotor.setControl(m_request));
+        final DutyCycleOut m_request = new DutyCycleOut(0.5);
+        return run(() -> {
+            while(grabberSensor.getValue() < 1){
+                grabberMotor.setControl(m_request);
+            }
+        });
+    }
+
+    public Command grab2(){
+        final PositionVoltage m_request = new PositionVoltage(0).withSlot(2);
+        return run(() -> grabberMotor.setControl(m_request.withPosition(.5)));
     }
 
     public Command release(){
-        final VoltageOut m_request = new VoltageOut(-0.5);
-        return run(() -> grabberMotor.setControl(m_request));
+        final PositionVoltage m_request = new PositionVoltage(0).withSlot(2);
+        return run(() -> grabberMotor.setControl(m_request.withPosition(-.5)));
     }
 
 }
