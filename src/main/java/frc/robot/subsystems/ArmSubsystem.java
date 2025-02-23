@@ -9,11 +9,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ArmSubsystem extends SubsystemBase{
     /** Motor for arm on the lift that has the grabber on the end */
-    private final TalonFX armMotor = new TalonFX(34, "rio");
+    private final TalonFX armMotor = new TalonFX(42, "rio");
 
     public ArmSubsystem(){
          var slot1Configs = new Slot1Configs();
-        slot1Configs.kP = 0.0001;
+        slot1Configs.kP = .1;
         slot1Configs.kI = 0; // no output for integrated error
         slot1Configs.kD = 0;
 

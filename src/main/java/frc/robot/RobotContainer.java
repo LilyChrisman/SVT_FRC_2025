@@ -46,7 +46,7 @@ public class RobotContainer
   private final GrabberSubsystem grabber = new GrabberSubsystem();
   private final ArmSubsystem arm = new ArmSubsystem();
 
-  private final SendableChooser<Command> autoChooser;
+ // private final SendableChooser<Command> autoChooser;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -106,9 +106,10 @@ public class RobotContainer
     NamedCommands.registerCommand("ArmPickupCoral", arm.armGoToPosCommand(extake.ARM_INTAKE_CORAL));
     NamedCommands.registerCommand("ArmScoreLow", arm.armGoToPosCommand(extake.ARM_EXTAKE_LOW));
 
-    autoChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Auto Chooser", autoChooser);
+    //autoChooser = AutoBuilder.buildAutoChooser();
+    //SmartDashboard.putData("Auto Chooser", autoChooser);
     drivebase.zeroGyro();
+    grabber.setDefaultCommand(grabber.brake());
   }
 
   /**
@@ -162,9 +163,9 @@ public class RobotContainer
         extake.liftGoToPosCommand(extake.LIFT_PICKUP_CORAL),
         grabber.grab2()
       ));
-      utilityController.leftBumper().onTrue(Commands.deadline(
-        grabber.release(),
-        arm.armGoToPosCommand(extake.ARM_INTAKE_CORAL)
+      utilityController.leftBumper().whileTrue(Commands.deadline(
+        grabber.release()
+        //arm.armGoToPosCommand(extake.ARM_INTAKE_CORAL)
       ));
       utilityController.y().onTrue(Commands.deadline(
         extake.liftGoToPosCommand(extake.LIFT_SCORE_L4),
@@ -178,7 +179,7 @@ public class RobotContainer
         extake.liftGoToPosCommand(extake.LIFT_SCORE_L1),
         arm.armGoToPosCommand(extake.ARM_EXTAKE_LOW)
       ));
-      utilityController.rightBumper().onTrue(Commands.runOnce(grabber::grab2));
+      utilityController.rightTrigger(.5).whileTrue(grabber.grab2());
     }
   }
 
@@ -190,7 +191,9 @@ public class RobotContainer
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return autoChooser.getSelected();
+    //return autoChooser.getSelected();
+    return Commands.none();
+  
   }
 
   public void setMotorBrake(boolean brake)
