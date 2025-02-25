@@ -102,9 +102,9 @@ public class RobotContainer
     NamedCommands.registerCommand("releaseCoral", grabber.release());
     NamedCommands.registerCommand("LiftScoreHigh", extake.liftGoToPosCommand(extake.LIFT_SCORE_L4));
     NamedCommands.registerCommand("LiftPickupCoral", extake.liftGoToPosCommand(extake.LIFT_PICKUP_CORAL));
-    NamedCommands.registerCommand("ArmScoreHigh", arm.armGoToPosCommand(extake.ARM_EXTAKE_HIGH));
-    NamedCommands.registerCommand("ArmPickupCoral", arm.armGoToPosCommand(extake.ARM_INTAKE_CORAL));
-    NamedCommands.registerCommand("ArmScoreLow", arm.armGoToPosCommand(extake.ARM_EXTAKE_LOW));
+    NamedCommands.registerCommand("ArmScoreHigh", arm.armGoToPosCommand(arm.ARM_EXTAKE_L4));
+    NamedCommands.registerCommand("ArmPickupCoral", arm.armGoToPosCommand(arm.ARM_INTAKE_CORAL));
+    NamedCommands.registerCommand("ArmScoreLow", arm.armGoToPosCommand(arm.ARM_EXTAKE_L1));
 
     //autoChooser = AutoBuilder.buildAutoChooser();
     //SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -159,7 +159,7 @@ public class RobotContainer
     {
       driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       utilityController.a().onTrue(Commands.deadline(
-        arm.armGoToPosCommand(extake.ARM_INTAKE_CORAL),
+        arm.armGoToPosCommand(arm.ARM_INTAKE_CORAL),
         extake.liftGoToPosCommand(extake.LIFT_PICKUP_CORAL),
         grabber.grab2()
       ));
@@ -169,15 +169,15 @@ public class RobotContainer
       ));
       utilityController.y().onTrue(Commands.deadline(
         extake.liftGoToPosCommand(extake.LIFT_SCORE_L4),
-        arm.armGoToPosCommand(extake.ARM_EXTAKE_HIGH)
+        arm.armGoToPosCommand(arm.ARM_EXTAKE_L4)
       ));
       utilityController.x().onTrue(Commands.deadline(
         extake.liftGoToPosCommand(extake.LIFT_SCORE_L3),
-        arm.armGoToPosCommand(extake.ARM_EXTAKE_HIGH)
+        arm.armGoToPosCommand(arm.ARM_EXTAKE_L3)
       ));
       utilityController.b().onTrue(Commands.deadline(
         extake.liftGoToPosCommand(extake.LIFT_SCORE_L1),
-        arm.armGoToPosCommand(extake.ARM_EXTAKE_LOW)
+        arm.armGoToPosCommand(arm.ARM_EXTAKE_L1)
       ));
       utilityController.rightTrigger(.5).whileTrue(grabber.grab2());
     }
