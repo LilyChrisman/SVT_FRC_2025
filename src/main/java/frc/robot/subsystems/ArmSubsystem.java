@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -18,6 +19,10 @@ public class ArmSubsystem extends SubsystemBase{
         slot1Configs.kD = 0;
 
         armMotor.getConfigurator().apply(slot1Configs);
+    }
+
+    public void periodic(){
+        SmartDashboard.putNumber("Elevator Position", armMotor.getPosition().getValueAsDouble());
     }
 
     public Command armGoToPosCommand(double position){
