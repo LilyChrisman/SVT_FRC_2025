@@ -18,16 +18,14 @@ public class ExtakeSubsystem extends SubsystemBase{
     
     
 
-    public final double LIFT_SCORE_L1 = -5;
-    public final double LIFT_SCORE_L2 = 0;
-    public final double LIFT_SCORE_L3 = -9;
-    public final double LIFT_SCORE_L4 = -90;
+    public final double LIFT_SCORE_L1 = -1;
+    public final double LIFT_SCORE_L2 = -1;
+    public final double LIFT_SCORE_L3 = -1;
+    public final double LIFT_SCORE_L4 = -67.41;
     public final double LIFT_BOTTOM = 0;
-    public final double LIFT_PICKUP_CORAL = 0;
+    public final double LIFT_PICKUP_CORAL = 0 ;
     
-    public final double ARM_EXTAKE_HIGH = 40;
-    public final double ARM_INTAKE_CORAL = 0;
-    public final double ARM_EXTAKE_LOW = 20;
+    
 
     public ExtakeSubsystem(){
         var talonFXConfigs = new TalonFXConfiguration();
