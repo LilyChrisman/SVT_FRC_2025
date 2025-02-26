@@ -32,9 +32,9 @@ public class ArmSubsystem extends SubsystemBase{
     }
 
     public Command armGoToPosCommand(double position){
-        final PositionVoltage m_request = new PositionVoltage(0).withSlot(1);
+        final PositionVoltage m_request = new PositionVoltage(position).withSlot(1);
         return run(() -> {
-            armMotor.setControl(m_request.withPosition(position));
+            armMotor.setControl(m_request);
         });
     }
 }

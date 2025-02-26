@@ -24,7 +24,7 @@ public class ExtakeSubsystem extends SubsystemBase{
     public final double LIFT_SCORE_L4 = -67.41;
     public final double LIFT_BOTTOM = 0;
     public final double LIFT_PICKUP_CORAL = 0 ;
-    
+
     
 
     public ExtakeSubsystem(){
