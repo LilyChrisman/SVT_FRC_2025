@@ -45,7 +45,7 @@ public class ArmSubsystem extends SubsystemBase{
     public Command armGoToPosCommand(double position){
         final MotionMagicVoltage m_request = new MotionMagicVoltage(0).withSlot(1);
         return run(() -> {
-            armMotor.setControl(m_request.withPosition(position));
+            armMotor.setControl(m_request);
         });
     }
 }
