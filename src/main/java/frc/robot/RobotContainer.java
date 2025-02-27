@@ -34,7 +34,7 @@ import swervelib.SwerveInputStream;
 public class RobotContainer
 {
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
+  // Initializing our two controllers
   final         CommandXboxController driverXbox = new CommandXboxController(0);
   final         CommandXboxController utilityController = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
@@ -42,6 +42,7 @@ public class RobotContainer
     new File(Filesystem.getDeployDirectory(), "swerve")
   );
 
+  //Initializes our three subsystems
   private final ExtakeSubsystem extake = new ExtakeSubsystem();
   private final GrabberSubsystem grabber = new GrabberSubsystem();
   private final ArmSubsystem arm = new ArmSubsystem();
@@ -97,6 +98,9 @@ public class RobotContainer
     // Configure the trigger bindings
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
+
+    //Named commands for autonomous. In path planner, match the name of the command to the one set in here and it will
+    //run the command associated with it
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
     NamedCommands.registerCommand("grabCoral", grabber.grab2());
     NamedCommands.registerCommand("releaseCoral", grabber.release());
@@ -108,7 +112,9 @@ public class RobotContainer
 
     //autoChooser = AutoBuilder.buildAutoChooser();
     //SmartDashboard.putData("Auto Chooser", autoChooser);
+    //Zeroes the gyro when the robot container is initialized
     drivebase.zeroGyro();
+    //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
     grabber.setDefaultCommand(grabber.brake());
   }
 
@@ -157,6 +163,7 @@ public class RobotContainer
       driverXbox.rightBumper().onTrue(Commands.none());
     } else
     {
+      //All controller inputs for main teleop mode
       driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       utilityController.a().onTrue(Commands.deadline(
         arm.armGoToPosCommand(arm.ARM_INTAKE_CORAL),

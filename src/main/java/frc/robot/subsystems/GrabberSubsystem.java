@@ -15,14 +15,18 @@ public class GrabberSubsystem extends SubsystemBase{
     private final AnalogInput grabberSensor = new AnalogInput(0);
 
     public GrabberSubsystem(){
+        //basic PID Config
         var slot2Configs = new Slot2Configs();
         slot2Configs.kP = 2.4;
         slot2Configs.kI = 0; // no output for integrated error
         slot2Configs.kD = 0;
 
+        //Applies config to grabber motor
         grabberMotor.getConfigurator().apply(slot2Configs);
     }
 
+    //Meant to run continously until it senses it has a coral
+    //Don't think it works
     public Command grab(){
         final DutyCycleOut m_request = new DutyCycleOut(0.5);
         return run(() -> {
@@ -32,6 +36,7 @@ public class GrabberSubsystem extends SubsystemBase{
         });
     }
 
+    //Runs grabber inward very slowly. Should be used to just hold the coral
     public Command brake(){
         final VoltageOut m_request = new VoltageOut(-.45);
         return runOnce(() -> {
@@ -39,6 +44,7 @@ public class GrabberSubsystem extends SubsystemBase{
         });
     }
 
+    //grab command we are actively using. just turns inward very fast
     public Command grab2(){
         final VoltageOut m_request = new VoltageOut(-2);
         return run(() -> {
@@ -47,6 +53,7 @@ public class GrabberSubsystem extends SubsystemBase{
         });
     }
 
+    //just reverses the grabber motor to allow coral to fall out
     public Command release(){
         final VoltageOut m_request = new VoltageOut(.5);
         return run(() -> {

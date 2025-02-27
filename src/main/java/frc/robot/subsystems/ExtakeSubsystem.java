@@ -17,7 +17,7 @@ public class ExtakeSubsystem extends SubsystemBase{
     
     private final DigitalInput limitSwitch = new DigitalInput(0);
     
-
+    //Set Points for lift for scoring and picking up coral
     public final double LIFT_SCORE_L1 = -1;
     public final double LIFT_SCORE_L2 = -1;
     public final double LIFT_SCORE_L3 = -1;
@@ -25,6 +25,7 @@ public class ExtakeSubsystem extends SubsystemBase{
     public final double LIFT_BOTTOM = 0;
     public final double LIFT_PICKUP_CORAL = 0 ;
 
+    //Checks if we have run the lift down to zero position
     private boolean hasZeroed = false;
     
     
@@ -37,17 +38,18 @@ public class ExtakeSubsystem extends SubsystemBase{
         slot0Configs.kS = 0.25; // Add 0.25 V output to overcome static friction
         slot0Configs.kV = 0.12; // A velocity target of 1 rps results in 0.12 V output
         slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
-        slot0Configs.kP = .4; // A position error of 2.5 rotations results in 12 V output
+        slot0Configs.kP = .4; // A position error of 3 rotations results in 1.2 V output
         slot0Configs.kI = 0; // no output for integrated error
         slot0Configs.kD = 0.1; // A velocity error of 1 rps results in 0.1 V output
 
         // set Motion Magic settings
         var motionMagicConfigs = talonFXConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = 80; // Target cruise velocity of 80 rps
-        motionMagicConfigs.MotionMagicAcceleration = 160; // Target acceleration of 160 rps/s (0.5 seconds)
-        motionMagicConfigs.MotionMagicJerk = 1600; // Target jerk of 1600 rps/s/s (0.1 seconds)
+        motionMagicConfigs.MotionMagicCruiseVelocity = 80; // Target cruise velocity of 80 rps(Max Speed)
+        motionMagicConfigs.MotionMagicAcceleration = 160; // Target acceleration of 160 rps/s (0.5 seconds)(How fast we want to get to max speed)
+        motionMagicConfigs.MotionMagicJerk = 1600; // Target jerk of 1600 rps/s/s (0.1 seconds)(Idk)
 
-
+        //Applies the configuration to the two motors then sets the second lift motor to follow
+        //the voltage of the first lift motor
         liftMotor1.getConfigurator().apply(slot0Configs);
         liftMotor2.getConfigurator().apply(slot0Configs);
         final Follower m_Follower = new Follower(31, false);
@@ -55,8 +57,11 @@ public class ExtakeSubsystem extends SubsystemBase{
     }
 
     public void periodic(){
+        //Let's us see the position of the lift on the dashboard
         SmartDashboard.putNumber("Elevator Position", liftMotor1.getPosition().getValueAsDouble());
 
+        //If we see the limit switch, we set the position to zero and say the lift has be zeroed
+        //else it cancels all other commands and runs the lift down till it sees the limit switch
         if(limitSwitch.get() == true){
             hasZeroed = true;
             liftMotor1.setPosition(0);
@@ -70,6 +75,7 @@ public class ExtakeSubsystem extends SubsystemBase{
         }
     }
 
+    //Command to run the lift to a position. Uses Magic Motion profiling
     public Command liftGoToPosCommand(double position){
         final MotionMagicVoltage m_request = new MotionMagicVoltage(0).withSlot(0);
          return run(() -> {
