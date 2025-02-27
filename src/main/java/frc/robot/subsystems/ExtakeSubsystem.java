@@ -5,6 +5,8 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,6 +29,13 @@ public class ExtakeSubsystem extends SubsystemBase{
 
     private boolean hasZeroed = false;
     
+
+    // 1 for up, -1 for down
+    public Command runMotor(double direction) {
+        return run(() -> {
+            this.liftMotor1.set(direction * 0.01);
+        });
+    }
     
 
     public ExtakeSubsystem(){
@@ -52,11 +61,14 @@ public class ExtakeSubsystem extends SubsystemBase{
         liftMotor2.getConfigurator().apply(slot0Configs);
         final Follower m_Follower = new Follower(31, false);
         liftMotor2.setControl(m_Follower);
+        liftMotor1.setNeutralMode(NeutralModeValue.Brake);
+        liftMotor2.setNeutralMode(NeutralModeValue.Brake);
     }
 
     public void periodic(){
         SmartDashboard.putNumber("Elevator Position", liftMotor1.getPosition().getValueAsDouble());
 
+        /*
         if(limitSwitch.get() == true){
             hasZeroed = true;
             liftMotor1.setPosition(0);
@@ -68,6 +80,8 @@ public class ExtakeSubsystem extends SubsystemBase{
             final VoltageOut m_request = new VoltageOut(-.45);
             liftMotor1.setControl(m_request);
         }
+         */
+        
     }
 
     public Command liftGoToPosCommand(double position){

@@ -160,8 +160,7 @@ public class RobotContainer
       driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       utilityController.a().onTrue(Commands.deadline(
         arm.armGoToPosCommand(arm.ARM_INTAKE_CORAL),
-        extake.liftGoToPosCommand(extake.LIFT_PICKUP_CORAL),
-        grabber.grab2()
+        extake.liftGoToPosCommand(extake.LIFT_PICKUP_CORAL)
       ));
       utilityController.leftBumper().whileTrue(Commands.deadline(
         grabber.release()
@@ -179,7 +178,11 @@ public class RobotContainer
         extake.liftGoToPosCommand(extake.LIFT_SCORE_L1),
         arm.armGoToPosCommand(arm.ARM_EXTAKE_L1)
       ));
-      utilityController.rightTrigger(.5).whileTrue(grabber.grab2());
+      utilityController.rightBumper().whileTrue(grabber.grab2());
+      utilityController.start()
+        .whileTrue(Commands.run(() -> {
+          extake.runMotor(utilityController.getLeftY());
+        }));
     }
   }
 
