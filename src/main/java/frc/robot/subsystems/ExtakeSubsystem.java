@@ -21,7 +21,7 @@ public class ExtakeSubsystem extends SubsystemBase{
     private final DigitalInput limitSwitch = new DigitalInput(0);
     
     //Set Points for lift for scoring and picking up coral
-    public final double LIFT_SCORE_L1 = -1;
+    public final double LIFT_SCORE_L1 = -20;
     public final double LIFT_SCORE_L2 = -1;
     public final double LIFT_SCORE_L3 = -1;
     public final double LIFT_SCORE_L4 = -83.0;

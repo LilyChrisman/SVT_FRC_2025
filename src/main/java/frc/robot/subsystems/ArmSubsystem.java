@@ -14,11 +14,11 @@ public class ArmSubsystem extends SubsystemBase{
     private final TalonFX armMotor = new TalonFX(42, "rio");
 
     //set positions for the arm to score
-    public final double ARM_EXTAKE_L4 = 43;
+    public final double ARM_EXTAKE_L4 = 40;
     public final double ARM_INTAKE_CORAL = 0;
-    public final double ARM_EXTAKE_L3 = 55;
+    public final double ARM_EXTAKE_L3 = 48;
     public final double ARM_EXTAKE_L2 = 20;
-    public final double ARM_EXTAKE_L1 = 15;
+    public final double ARM_EXTAKE_L1 = 18;
 
 
     public ArmSubsystem(){
