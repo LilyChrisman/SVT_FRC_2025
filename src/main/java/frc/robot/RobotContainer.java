@@ -54,8 +54,8 @@ public class RobotContainer
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
     drivebase.getSwerveDrive(),
-    () -> driverXbox.getLeftY() * -1,
-    () -> driverXbox.getLeftX() * -1
+    () -> Math.signum(driverXbox.getLeftY()) * Math.abs(Math.pow(driverXbox.getLeftY(), 2)) * 0.5,
+    () -> Math.signum(driverXbox.getLeftX()) * Math.abs(Math.pow(driverXbox.getLeftX(), 2)) * 0.5
   ).withControllerRotationAxis(driverXbox::getRightX)
   .deadband(OperatorConstants.DEADBAND)
   .scaleTranslation(0.8)
@@ -65,8 +65,10 @@ public class RobotContainer
    * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
    */
   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
-    .withControllerHeadingAxis(driverXbox::getRightX, driverXbox::getRightY)
-    .headingWhile(true);
+    .withControllerHeadingAxis(
+      () -> Math.signum(driverXbox.getRightX()) * Math.abs(Math.pow(driverXbox.getRightX(), 2)),
+      () -> Math.signum(driverXbox.getRightY()) * Math.abs(Math.pow(driverXbox.getRightY(), 2))
+    ).headingWhile(true);
 
   /**
    * Clone's the angular velocity input stream and converts it to a robotRelative input stream.
@@ -186,10 +188,15 @@ public class RobotContainer
         arm.armGoToPosCommand(arm.ARM_EXTAKE_L1)
       ));
       utilityController.rightBumper().whileTrue(grabber.grab2());
+      // manual override for controlling the elevator
       utilityController.start()
         .whileTrue(Commands.run(() -> {
+          extake.setManual(true);
           extake.runMotor(utilityController.getLeftY());
         }));
+      utilityController.start().onFalse(Commands.run(() -> {
+        extake.setManual(false);
+      }));
     }
   }
 

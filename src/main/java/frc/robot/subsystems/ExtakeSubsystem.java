@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class ExtakeSubsystem extends SubsystemBase{
     /** Motors for lift */
@@ -23,21 +24,29 @@ public class ExtakeSubsystem extends SubsystemBase{
     public final double LIFT_SCORE_L1 = -1;
     public final double LIFT_SCORE_L2 = -1;
     public final double LIFT_SCORE_L3 = -1;
-    public final double LIFT_SCORE_L4 = -67.41;
+    public final double LIFT_SCORE_L4 = -83.0;
     public final double LIFT_BOTTOM = 0;
     public final double LIFT_PICKUP_CORAL = 0 ;
 
     //Checks if we have run the lift down to zero position
     private boolean hasZeroed = false;
     
+    protected boolean activelyManual = false;
 
     // 1 for up, -1 for down
-    public Command runMotor(double direction) {
-        return run(() -> {
-            this.liftMotor1.set(direction * 0.01);
-        });
+    public void runMotor(double direction) {
+        if(this.getCurrentCommand() != null){
+            this.getCurrentCommand().cancel();
+        }
+        this.liftMotor1.set(direction * 0.2);
     }
     
+    public void setManual(boolean isMan) {
+        this.activelyManual = isMan;
+    }
+    public boolean isManual() {
+        return this.activelyManual;
+    }
 
     public ExtakeSubsystem(){
         var talonFXConfigs = new TalonFXConfiguration();
@@ -91,7 +100,6 @@ public class ExtakeSubsystem extends SubsystemBase{
     public Command liftGoToPosCommand(double position){
         final MotionMagicVoltage m_request = new MotionMagicVoltage(0).withSlot(0);
          return run(() -> {
-            System.out.println("Test Print");
             liftMotor1.setControl(m_request.withPosition(position));
          });
     }

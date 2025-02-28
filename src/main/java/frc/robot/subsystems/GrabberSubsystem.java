@@ -48,7 +48,6 @@ public class GrabberSubsystem extends SubsystemBase{
     public Command grab2(){
         final VoltageOut m_request = new VoltageOut(-2);
         return run(() -> {
-            System.out.println("Test Print");
             grabberMotor.setControl(m_request);
         });
     }
