@@ -9,9 +9,11 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,7 +49,7 @@ public class RobotContainer
   private final GrabberSubsystem grabber = new GrabberSubsystem();
   private final ArmSubsystem arm = new ArmSubsystem();
 
- // private final SendableChooser<Command> autoChooser;
+  private final SendableChooser<Command> autoChooser;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -110,8 +112,8 @@ public class RobotContainer
     NamedCommands.registerCommand("ArmPickupCoral", arm.armGoToPosCommand(arm.ARM_INTAKE_CORAL));
     NamedCommands.registerCommand("ArmScoreLow", arm.armGoToPosCommand(arm.ARM_EXTAKE_L1));
 
-    //autoChooser = AutoBuilder.buildAutoChooser();
-    //SmartDashboard.putData("Auto Chooser", autoChooser);
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
     //Zeroes the gyro when the robot container is initialized
     drivebase.zeroGyro();
     //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
@@ -195,11 +197,23 @@ public class RobotContainer
    *
    * @return the command to run in autonomous
    */
+
+  long startingTime = 0;
+  long runningTime = 2000;
   public Command getAutonomousCommand()
   {
+    if (startingTime == 0)
+    {
+      startingTime = RobotController.getFPGATime();
+    }
+    if (RobotController.getFPGATime() <= startingTime + runningTime)
+    {
+      return Commands.run(() -> drivebase.drive( new ChassisSpeeds(0.1, 0, 0)));
+    }
     // An example command will be run in autonomous
-    //return autoChooser.getSelected();
-    return Commands.none();
+    return autoChooser.getSelected();
+
+    //return Commands.none();
   
   }
 
