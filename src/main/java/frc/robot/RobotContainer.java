@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -44,12 +45,21 @@ public class RobotContainer
     new File(Filesystem.getDeployDirectory(), "swerve")
   );
 
+  private final Command m_DriveAuto = Commands.run(() -> {
+    drivebase.drive( new ChassisSpeeds(0, 1, 0));
+  }, drivebase).withTimeout(2);
+  //private final Command m_ScoreAuto = new ScoreAuto();
+  //private final Command m_NothingAuto;
+
+  SendableChooser<Command> m_chooser = new SendableChooser<>();
+
+
   //Initializes our three subsystems
   private final ExtakeSubsystem extake = new ExtakeSubsystem();
   private final GrabberSubsystem grabber = new GrabberSubsystem();
   private final ArmSubsystem arm = new ArmSubsystem();
 
-  private final SendableChooser<Command> autoChooser;
+  // private final SendableChooser<Command> autoChooser;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -108,14 +118,14 @@ public class RobotContainer
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
     NamedCommands.registerCommand("grabCoral", grabber.grab2());
     NamedCommands.registerCommand("releaseCoral", grabber.release());
-    NamedCommands.registerCommand("LiftScoreHigh", extake.liftGoToPosCommand(extake.LIFT_SCORE_L4));
-    NamedCommands.registerCommand("LiftPickupCoral", extake.liftGoToPosCommand(extake.LIFT_PICKUP_CORAL));
-    NamedCommands.registerCommand("ArmScoreHigh", arm.armGoToPosCommand(arm.ARM_EXTAKE_L4));
-    NamedCommands.registerCommand("ArmPickupCoral", arm.armGoToPosCommand(arm.ARM_INTAKE_CORAL));
-    NamedCommands.registerCommand("ArmScoreLow", arm.armGoToPosCommand(arm.ARM_EXTAKE_L1));
+    NamedCommands.registerCommand("LiftScoreHigh", extake.goToScoringGoal(ScoringGoal.L4));
+    NamedCommands.registerCommand("LiftPickupCoral", extake.goToScoringGoal(ScoringGoal.Intake));
+    NamedCommands.registerCommand("ArmScoreHigh", arm.goToScoringGoal(ScoringGoal.L4));
+    NamedCommands.registerCommand("ArmPickupCoral", arm.goToScoringGoal(ScoringGoal.Intake));
+    NamedCommands.registerCommand("ArmScoreLow", arm.goToScoringGoal(ScoringGoal.L1));
 
-    autoChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Auto Chooser", autoChooser);
+    // autoChooser = AutoBuilder.buildAutoChooser();
+    // SmartDashboard.putData("Auto Chooser", autoChooser);
     //Zeroes the gyro when the robot container is initialized
     drivebase.zeroGyro();
     //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
@@ -141,22 +151,18 @@ public class RobotContainer
     Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
     Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngleKeyboard);
 
-    if (RobotBase.isSimulation())
-    {
+    if (RobotBase.isSimulation()) {
       drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
-    } else
-    {
+    } else {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
 
-    if (Robot.isSimulation())
-    {
+    if (Robot.isSimulation()) {
       driverXbox.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
       driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
 
-    }
-    if (DriverStation.isTest())
-    {
+    } // idk if else can be here or not, it wasn't when I got here
+    if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
 
       driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
@@ -165,40 +171,44 @@ public class RobotContainer
       driverXbox.back().whileTrue(drivebase.centerModulesCommand());
       driverXbox.leftBumper().onTrue(Commands.none());
       driverXbox.rightBumper().onTrue(Commands.none());
-    } else
-    {
+    } else /* teleop */ {
       //All controller inputs for main teleop mode
       driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       utilityController.a().onTrue(Commands.deadline(
-        arm.armGoToPosCommand(arm.ARM_INTAKE_CORAL),
-        extake.liftGoToPosCommand(extake.LIFT_PICKUP_CORAL)
+        arm.goToScoringGoal(ScoringGoal.Intake),
+        extake.goToScoringGoal(ScoringGoal.Intake)
       ));
       utilityController.leftBumper().whileTrue(Commands.deadline(
         grabber.release()
-        //arm.armGoToPosCommand(extake.ARM_INTAKE_CORAL)
       ));
       utilityController.y().onTrue(Commands.deadline(
-        extake.liftGoToPosCommand(extake.LIFT_SCORE_L4),
-        arm.armGoToPosCommand(arm.ARM_EXTAKE_L4)
+        extake.goToScoringGoal(ScoringGoal.L4),
+        arm.goToScoringGoal(ScoringGoal.L4)
       ));
       utilityController.x().onTrue(Commands.deadline(
-        extake.liftGoToPosCommand(extake.LIFT_SCORE_L3),
-        arm.armGoToPosCommand(arm.ARM_EXTAKE_L3)
+        extake.goToScoringGoal(ScoringGoal.L3),
+        arm.goToScoringGoal(ScoringGoal.L3)
       ));
       utilityController.b().onTrue(Commands.deadline(
-        extake.liftGoToPosCommand(extake.LIFT_SCORE_L1),
-        arm.armGoToPosCommand(arm.ARM_EXTAKE_L1)
+        extake.goToScoringGoal(ScoringGoal.L1),
+        arm.goToScoringGoal(ScoringGoal.L1)
       ));
       utilityController.rightBumper().whileTrue(grabber.grab2());
       // manual override for controlling the elevator
-      utilityController.start()
+      utilityController.leftTrigger()
         .whileTrue(Commands.run(() -> {
-          extake.setManual(true);
-          extake.runMotor(utilityController.getLeftY());
+          extake.runMotorManual(utilityController.getLeftY());
         }));
-      utilityController.start().onFalse(Commands.run(() -> {
-        extake.setManual(false);
-      }));
+      // manual override for controlling the arm
+      utilityController.rightTrigger()
+        .whileTrue(Commands.run(() -> {
+          // direction inverted so it's good
+          arm.runMotorManual(-utilityController.getRightY());
+        }));
+
+      // set elevator zero position manually
+      utilityController.povDown()
+        .onTrue(Commands.runOnce(extake::zeroPosition));
     }
   }
 
@@ -212,18 +222,23 @@ public class RobotContainer
   long runningTime = 2000;
   public Command getAutonomousCommand()
   {
-    if (startingTime == 0)
-    {
-      startingTime = RobotController.getFPGATime();
-    }
-    if (RobotController.getFPGATime() <= startingTime + runningTime)
-    {
-      return Commands.run(() -> drivebase.drive( new ChassisSpeeds(0.1, 0, 0)));
-    }
+    // if (startingTime == 0)
+    // {
+    //   startingTime = RobotController.getFPGATime();
+    // }
+    // if (RobotController.getFPGATime() <= startingTime + runningTime)
+    // {
+
+    m_chooser.setDefaultOption("Drive Auto", m_DriveAuto);
+    //m_chooser.addOption("Nothing Auto", m_NothingAuto);
+    //m_chooser.addOption("Score Auto", m_ScoreAuto);
+    SmartDashboard.putData(m_chooser);
+    return m_chooser.getSelected();
+    // }
     // An example command will be run in autonomous
     //return autoChooser.getSelected();
 
-    return Commands.none();
+    // return Commands.none();
   
   }
 

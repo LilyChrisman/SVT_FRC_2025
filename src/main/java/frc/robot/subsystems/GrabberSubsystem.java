@@ -54,7 +54,7 @@ public class GrabberSubsystem extends SubsystemBase{
 
     //just reverses the grabber motor to allow coral to fall out
     public Command release(){
-        final VoltageOut m_request = new VoltageOut(.5);
+        final VoltageOut m_request = new VoltageOut(.7);
         return run(() -> {
             grabberMotor.setControl(m_request);
         });

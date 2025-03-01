@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.ScoringGoal;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,20 +22,25 @@ public class ExtakeSubsystem extends SubsystemBase{
     private final DigitalInput limitSwitch = new DigitalInput(0);
     
     //Set Points for lift for scoring and picking up coral
-    public final double LIFT_SCORE_L1 = -20;
-    public final double LIFT_SCORE_L2 = -1;
-    public final double LIFT_SCORE_L3 = -1;
-    public final double LIFT_SCORE_L4 = -83.0;
-    public final double LIFT_BOTTOM = 0;
-    public final double LIFT_PICKUP_CORAL = 0 ;
+    protected final double LIFT_SCORE_L1 = -20;
+    protected final double LIFT_SCORE_L2 = -1;
+    protected final double LIFT_SCORE_L3 = -1;
+    protected final double LIFT_SCORE_L4 = -83.0;
+    protected final double LIFT_BOTTOM = 0;
+    protected final double LIFT_PICKUP_CORAL = 0 ;
 
     //Checks if we have run the lift down to zero position
     private boolean hasZeroed = false;
     
+    // does nothing rn
     protected boolean activelyManual = false;
 
+    public void zeroPosition() {
+        this.liftMotor1.setPosition(LIFT_BOTTOM);
+    }
+
     // 1 for up, -1 for down
-    public void runMotor(double direction) {
+    public void runMotorManual(double direction) {
         if(this.getCurrentCommand() != null){
             this.getCurrentCommand().cancel();
         }
@@ -97,10 +103,20 @@ public class ExtakeSubsystem extends SubsystemBase{
     }
 
     //Command to run the lift to a position. Uses Magic Motion profiling
-    public Command liftGoToPosCommand(double position){
-        final MotionMagicVoltage m_request = new MotionMagicVoltage(0).withSlot(0);
+    public Command goToScoringGoal(ScoringGoal goal){
+        double position = switch (goal) {
+            case Intake -> LIFT_PICKUP_CORAL;
+            case L1 -> LIFT_SCORE_L1;
+            case L2 -> LIFT_SCORE_L2;
+            case L3 -> LIFT_SCORE_L3;
+            case L4 -> LIFT_SCORE_L4;
+            default -> 0;
+        };
+
+        final MotionMagicVoltage m_request = new MotionMagicVoltage(position)
+            .withSlot(0);
          return run(() -> {
-            liftMotor1.setControl(m_request.withPosition(position));
+            liftMotor1.setControl(m_request);
          });
     }
 }
