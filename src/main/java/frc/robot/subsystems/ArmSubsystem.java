@@ -34,16 +34,24 @@ public class ArmSubsystem extends SubsystemBase{
 
     private boolean isManual = false;
 
-    private final double SHEATH_POS_CHANGE = 7.5;
+    private final double SHEATH_POS_CHANGE = 25;
     public void sheath() {
+        if(this.getCurrentCommand() != null) {
+            this.getCurrentCommand().cancel();
+        }
+
         final MotionMagicVoltage m_request = new MotionMagicVoltage(
-            this.armMotor.getPosition().getValueAsDouble() - SHEATH_POS_CHANGE
+            this.armMotor.getPosition().getValueAsDouble() - SHEATH_POS_CHANGE/4
         ).withSlot(0);
         armMotor.setControl(m_request);
     }
     public void unsheath() {
+        if(this.getCurrentCommand() != null) {
+            this.getCurrentCommand().cancel();
+        }
+
         final MotionMagicVoltage m_request = new MotionMagicVoltage(
-            this.armMotor.getPosition().getValueAsDouble() + SHEATH_POS_CHANGE
+            this.armMotor.getPosition().getValueAsDouble() + SHEATH_POS_CHANGE/4
         ).withSlot(0);
         armMotor.setControl(m_request);
     }

@@ -212,12 +212,12 @@ public class RobotContainer
         }));
       // sheath
       utilityController.povDown()
-        .whileTrue(Commands.runOnce(() -> {
+        .onTrue(Commands.runOnce(() -> {
           arm.sheath();
         }));
       // unsheath
-      utilityController.povUp()
-        .whileTrue(Commands.runOnce(() -> {
+      utilityController.povDown()
+        .onFalse(Commands.runOnce(() -> {
           arm.unsheath();
         }));
 
