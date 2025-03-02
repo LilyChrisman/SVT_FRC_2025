@@ -11,8 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Filesystem;import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -38,18 +37,19 @@ public class RobotContainer
 {
 
   // Initializing our two controllers
-  final         CommandXboxController driverXbox = new CommandXboxController(0);
-  final         CommandXboxController utilityController = new CommandXboxController(1);
+  public static final         CommandXboxController driverXbox = new CommandXboxController(0);
+  public static final         CommandXboxController utilityController = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(
     new File(Filesystem.getDeployDirectory(), "swerve")
   );
 
-  private final Command m_DriveAuto = Commands.run(() -> {
-    drivebase.drive( new ChassisSpeeds(0, 1, 0));
-  }, drivebase).withTimeout(2);
-  //private final Command m_ScoreAuto = new ScoreAuto();
-  //private final Command m_NothingAuto;
+  private final double DRIVE_SPEED_DEFAULT = 0.5;
+  private final double DRIVE_SPEED_SLOW = 0.25;
+  private boolean driveIsDefault = true;
+  private double driveSpeedControlMod = DRIVE_SPEED_DEFAULT;
+
+  
 
   SendableChooser<Command> m_chooser = new SendableChooser<>();
 
@@ -66,8 +66,8 @@ public class RobotContainer
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
     drivebase.getSwerveDrive(),
-    () -> Math.signum(driverXbox.getLeftY()) * Math.abs(Math.pow(driverXbox.getLeftY(), 2)) * 0.5,
-    () -> Math.signum(driverXbox.getLeftX()) * Math.abs(Math.pow(driverXbox.getLeftX(), 2)) * 0.5
+    () -> Math.signum(driverXbox.getLeftY()) * Math.abs(Math.pow(driverXbox.getLeftY(), 2)) * this.driveSpeedControlMod,
+    () -> Math.signum(driverXbox.getLeftX()) * Math.abs(Math.pow(driverXbox.getLeftX(), 2)) * this.driveSpeedControlMod
   ).withControllerRotationAxis(driverXbox::getRightX)
   .deadband(OperatorConstants.DEADBAND)
   .scaleTranslation(0.8)
@@ -78,8 +78,8 @@ public class RobotContainer
    */
   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
     .withControllerHeadingAxis(
-      () -> Math.signum(driverXbox.getRightX()) * Math.abs(Math.pow(driverXbox.getRightX(), 2)),
-      () -> Math.signum(driverXbox.getRightY()) * Math.abs(Math.pow(driverXbox.getRightY(), 2))
+      () -> Math.signum(driverXbox.getRightX()) * Math.abs(Math.pow(driverXbox.getRightX(), 2)) * this.driveSpeedControlMod*2,
+      () -> Math.signum(driverXbox.getRightY()) * Math.abs(Math.pow(driverXbox.getRightY(), 2)) * this.driveSpeedControlMod*2
     ).headingWhile(true);
 
   /**
@@ -173,7 +173,13 @@ public class RobotContainer
       driverXbox.rightBumper().onTrue(Commands.none());
     } else /* teleop */ {
       //All controller inputs for main teleop mode
+      // driver
       driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+      driverXbox.rightBumper().onChange(Commands.runOnce(() -> {
+        this.driveIsDefault = !this.driveIsDefault;
+        this.driveSpeedControlMod = this.driveIsDefault ? DRIVE_SPEED_DEFAULT : DRIVE_SPEED_SLOW;
+      }));
+      // operator
       utilityController.a().onTrue(Commands.deadline(
         arm.goToScoringGoal(ScoringGoal.Intake),
         extake.goToScoringGoal(ScoringGoal.Intake)
@@ -194,20 +200,29 @@ public class RobotContainer
         arm.goToScoringGoal(ScoringGoal.L1)
       ));
       utilityController.rightBumper().whileTrue(grabber.grab2());
-      // manual override for controlling the elevator
-      utilityController.leftTrigger()
-        .whileTrue(Commands.run(() -> {
-          extake.runMotorManual(utilityController.getLeftY());
+      // manual override toggle for controlling the elevator
+      utilityController.povLeft()
+        .onTrue(Commands.runOnce(() -> {
+          extake.toggleManual();
         }));
-      // manual override for controlling the arm
-      utilityController.rightTrigger()
-        .whileTrue(Commands.run(() -> {
-          // direction inverted so it's good
-          arm.runMotorManual(-utilityController.getRightY());
+      // manual override toggle for controlling the arm
+      utilityController.povRight()
+        .onTrue(Commands.runOnce(() -> {
+          arm.toggleManual();
+        }));
+      // sheath
+      utilityController.povDown()
+        .whileTrue(Commands.runOnce(() -> {
+          arm.sheath();
+        }));
+      // unsheath
+      utilityController.povUp()
+        .whileTrue(Commands.runOnce(() -> {
+          arm.unsheath();
         }));
 
       // set elevator zero position manually
-      utilityController.povDown()
+      utilityController.start()
         .onTrue(Commands.runOnce(extake::zeroPosition));
     }
   }
@@ -229,9 +244,41 @@ public class RobotContainer
     // if (RobotController.getFPGATime() <= startingTime + runningTime)
     // {
 
-    m_chooser.setDefaultOption("Drive Auto", m_DriveAuto);
-    //m_chooser.addOption("Nothing Auto", m_NothingAuto);
-    //m_chooser.addOption("Score Auto", m_ScoreAuto);
+    //private final Command m_NothingAuto;
+
+    // drive
+    m_chooser.setDefaultOption("Drive Auto", Commands.run(() -> {
+      drivebase.drive( new ChassisSpeeds(0, 1, 0));
+    }, drivebase).withTimeout(2));
+    // prepare to score
+    m_chooser.addOption(
+      "Score Auto", 
+      Commands.sequence(
+        // go forward into reef
+        Commands.run(
+            () -> {
+              drivebase.drive( new ChassisSpeeds(0, 1, 0));
+            },
+            drivebase
+          ).withTimeout(3),
+        // go backwards a little
+        Commands.run(
+            () -> {
+              drivebase.drive( new ChassisSpeeds(0, -1, 0));
+            },
+            drivebase
+          ).withTimeout(0.5),
+        // position for score
+        Commands.deadline(
+          this.extake.goToScoringGoal(ScoringGoal.L1),
+          this.arm.goToScoringGoal(ScoringGoal.L1)
+        ),
+        // score
+        Commands.run(() ->this.grabber.release())
+          .withTimeout(1)
+      )
+    );
+
     SmartDashboard.putData(m_chooser);
     return m_chooser.getSelected();
     // }

@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.ScoringGoal;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,9 +32,12 @@ public class ExtakeSubsystem extends SubsystemBase{
 
     //Checks if we have run the lift down to zero position
     private boolean hasZeroed = false;
-    
-    // does nothing rn
-    protected boolean activelyManual = false;
+
+    private boolean isManual = false;
+
+    public void toggleManual() {
+        this.isManual = !this.isManual;
+    }
 
     public void zeroPosition() {
         this.liftMotor1.setPosition(LIFT_BOTTOM);
@@ -41,17 +45,11 @@ public class ExtakeSubsystem extends SubsystemBase{
 
     // 1 for up, -1 for down
     public void runMotorManual(double direction) {
+        System.out.println("Extake motor manual controller: " + direction);
         if(this.getCurrentCommand() != null){
             this.getCurrentCommand().cancel();
         }
-        this.liftMotor1.set(direction * 0.2);
-    }
-    
-    public void setManual(boolean isMan) {
-        this.activelyManual = isMan;
-    }
-    public boolean isManual() {
-        return this.activelyManual;
+        this.liftMotor1.set(direction * 0.3);
     }
 
     public ExtakeSubsystem(){
@@ -99,11 +97,17 @@ public class ExtakeSubsystem extends SubsystemBase{
             liftMotor1.setControl(m_request);
         }
          */
+
+        if (this.isManual) {
+            this.runMotorManual(RobotContainer.utilityController.getLeftY());
+        }
         
     }
 
     //Command to run the lift to a position. Uses Magic Motion profiling
     public Command goToScoringGoal(ScoringGoal goal){
+        if(this.isManual) return Commands.run(() -> {}); // do nothing in manual for safety
+
         double position = switch (goal) {
             case Intake -> LIFT_PICKUP_CORAL;
             case L1 -> LIFT_SCORE_L1;
