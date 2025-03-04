@@ -42,23 +42,30 @@ public class RobotContainer {
     new File(Filesystem.getDeployDirectory(), "swerve")
   );
 
+  final double DRIVE_CONTROLLER_SLOW_DOWN = 0.5;
+
   final double DRIVE_SPEED_DEFAULT = 0.6;
   final double DRIVE_SPEED_SLOW = 0.25;
-  boolean driveIsDefault = true;
+  boolean driveIsDefaultSpeed = true;
   double driveSpeed = DRIVE_SPEED_DEFAULT;
 
   void toggleDriveIsDefault() {
-    this.driveIsDefault = !this.driveIsDefault;
-    this.driveSpeed = this.driveIsDefault ? DRIVE_SPEED_DEFAULT : DRIVE_SPEED_SLOW;
+    this.driveIsDefaultSpeed = !this.driveIsDefaultSpeed;
+    if(this.driveIsDefaultSpeed) {
+      
+    } else {
+
+    }
+    this.driveSpeed = this.driveIsDefaultSpeed ? DRIVE_SPEED_DEFAULT : DRIVE_SPEED_SLOW;
   }
 
 
   SendableChooser<Command> auto_chooser = new SendableChooser<>();
 
   //Initializes our three subsystems
-  private final ExtakeSubsystem extake = new ExtakeSubsystem();
-  private final GrabberSubsystem grabber = new GrabberSubsystem();
-  private final ArmSubsystem arm = new ArmSubsystem();
+  final ExtakeSubsystem extake = new ExtakeSubsystem();
+  final GrabberSubsystem grabber = new GrabberSubsystem();
+  final ArmSubsystem arm = new ArmSubsystem();
 
   // private final SendableChooser<Command> autoChooser;
 
@@ -67,8 +74,8 @@ public class RobotContainer {
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
     drivebase.getSwerveDrive(),
-    () -> Math.signum(driverController.getLeftY()) * Math.abs(Math.pow(driverController.getLeftY(), 2)) * this.driveSpeed,
-    () -> Math.signum(driverController.getLeftX()) * Math.abs(Math.pow(driverController.getLeftX(), 2)) * this.driveSpeed
+    () -> Math.signum(driverController.getLeftY()) * Math.abs(Math.pow(driverController.getLeftY(), 2)) * DRIVE_CONTROLLER_SLOW_DOWN,
+    () -> Math.signum(driverController.getLeftX()) * Math.abs(Math.pow(driverController.getLeftX(), 2)) * DRIVE_CONTROLLER_SLOW_DOWN
   ).withControllerRotationAxis(driverController::getRightX)
   .deadband(OperatorConstants.DEADBAND)
   .scaleTranslation(0.8)
@@ -79,8 +86,8 @@ public class RobotContainer {
    */
   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
     .withControllerHeadingAxis(
-      () -> Math.signum(driverController.getRightX()) * Math.abs(Math.pow(driverController.getRightX(), 2)) * this.driveSpeed*2,
-      () -> Math.signum(driverController.getRightY()) * Math.abs(Math.pow(driverController.getRightY(), 2)) * this.driveSpeed*2
+      () -> Math.signum(driverController.getRightX()) * Math.abs(Math.pow(driverController.getRightX(), 2)) * DRIVE_CONTROLLER_SLOW_DOWN,
+      () -> Math.signum(driverController.getRightY()) * Math.abs(Math.pow(driverController.getRightY(), 2)) * DRIVE_CONTROLLER_SLOW_DOWN
     ).headingWhile(true);
 
   /**
