@@ -27,7 +27,11 @@ public class ArmSubsystem extends SubsystemBase{
     // used to determine which goal pos to reposition when leaving manual mode
     protected ScoringGoal lastScoringGoal = ScoringGoal.None;
     protected double posBeforeManual = 0.0;
+
+    // why does this exist?????
+    // TODO change all instances of this to isManual
     protected boolean inManual = false;
+
     // bad hacky i hate it
     protected double lastManualPos = 0.0;
     protected boolean wasManual = false;
@@ -78,7 +82,6 @@ public class ArmSubsystem extends SubsystemBase{
     }
 
     public void runMotorManual(double direction) {
-        System.out.println("Arm motor manual controller: " + direction);
         // this only runs the first cycle in a fresh manual run
         if(!this.inManual) {
             this.recordPositionBeforeManual();
@@ -130,6 +133,8 @@ public class ArmSubsystem extends SubsystemBase{
         SmartDashboard.putNumber("Arm Goal 3", this.posForL3);
         SmartDashboard.putNumber("Arm Goal 4", this.posForL4);
         SmartDashboard.putNumber("Arm Goal Intake", this.posForCoralIntake);
+
+        SmartDashboard.putBoolean("Arm Manual Mode", this.isManual);
 
         if (this.isManual) {
             // direction inverted so it's good

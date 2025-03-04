@@ -84,6 +84,8 @@ public class ExtakeSubsystem extends SubsystemBase{
         //Let's us see the position of the lift on the dashboard
         SmartDashboard.putNumber("Elevator Position", liftMotor1.getPosition().getValueAsDouble());
 
+        SmartDashboard.putBoolean("Elevator Manual Mode", this.isManual);
+
         /*
         if(limitSwitch.get() == true){
             hasZeroed = true;
