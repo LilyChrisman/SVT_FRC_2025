@@ -73,6 +73,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final IMUData imu = LimelightHelpers.getIMUData(getName());
 
+  public void setMaxSpeed(double speed) {
+    this.swerveDrive.setMaximumAllowableSpeeds(speed, speed);
+  }
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -281,8 +285,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return Command to drive the robot using the setpoint generator.
    */
   public Command driveWithSetpointGeneratorFieldRelative(Supplier<ChassisSpeeds> fieldRelativeSpeeds) {
-    try
-    {
+    try {
       return driveWithSetpointGenerator(() -> {
         return ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds.get(), getHeading());
 
@@ -315,10 +318,12 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command sysIdAngleMotorCommand() {
     return SwerveDriveTest.generateSysIdCommand(
-        SwerveDriveTest.setAngleSysIdRoutine(
-            new Config(),
-            this, this.swerveDrive),
-        3.0, 5.0, 3.0);
+      SwerveDriveTest.setAngleSysIdRoutine(
+        new Config(),
+        this, this.swerveDrive
+      ),
+      3.0, 5.0, 3.0
+    );
   }
 
   /**
@@ -328,7 +333,8 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command centerModulesCommand() {
     return run(() -> Arrays.asList(this.swerveDrive.getModules())
-                           .forEach(it -> it.setAngle(0.0)));
+      .forEach(it -> it.setAngle(0.0))
+    );
   }
 
   /**

@@ -29,7 +29,7 @@ public class ArmSubsystem extends SubsystemBase{
     protected double posBeforeManual = 0.0;
 
     // why does this exist?????
-    // TODO change all instances of this to isManual
+    // TODO change all instances of this to isManual and hope it works
     protected boolean inManual = false;
 
     // bad hacky i hate it
@@ -38,26 +38,12 @@ public class ArmSubsystem extends SubsystemBase{
 
     private boolean isManual = false;
 
-    private final double SHEATH_POS_CHANGE = 25;
+    private final double SHEATH_POS_CHANGE = 0.5;
     public void sheath() {
-        if(this.getCurrentCommand() != null) {
-            this.getCurrentCommand().cancel();
-        }
-
-        final MotionMagicVoltage m_request = new MotionMagicVoltage(
-            this.armMotor.getPosition().getValueAsDouble() - SHEATH_POS_CHANGE/4
-        ).withSlot(0);
-        armMotor.setControl(m_request);
+        this.runMotorManual(-SHEATH_POS_CHANGE);
     }
     public void unsheath() {
-        if(this.getCurrentCommand() != null) {
-            this.getCurrentCommand().cancel();
-        }
-
-        final MotionMagicVoltage m_request = new MotionMagicVoltage(
-            this.armMotor.getPosition().getValueAsDouble() + SHEATH_POS_CHANGE/4
-        ).withSlot(0);
-        armMotor.setControl(m_request);
+        this.runMotorManual(SHEATH_POS_CHANGE);
     }
 
     public void toggleManual() {
