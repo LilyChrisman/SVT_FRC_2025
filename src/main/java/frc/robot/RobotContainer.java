@@ -174,12 +174,14 @@ public class RobotContainer {
       // All controller inputs for main teleop mode
       // driver
       driverController.start()
-        .onTrue(Commands.runOnce(drivebase::zeroGyro));
+        .onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverController.leftStick()
         .onTrue(Commands.runOnce(() -> {
           this.toggleDriveIsDefault();
         }));
-
+      driverController.rightStick().onTrue((Commands.runOnce(drivebase::autoAlign)));
+      driverController.rightBumper().onTrue((Commands.runOnce(drivebase::alignRight)));
+      driverController.leftBumper().onTrue((Commands.runOnce(drivebase::alignLeft)));
       // operator
       // grabber
       utilityController.leftBumper().whileTrue(Commands.deadline(
