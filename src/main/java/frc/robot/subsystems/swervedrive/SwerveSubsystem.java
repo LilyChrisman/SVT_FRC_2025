@@ -5,6 +5,7 @@
 package frc.robot.subsystems.swervedrive;
 
 import static edu.wpi.first.units.Units.Meter;
+import java.util.HashMap;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -44,6 +45,7 @@ import frc.robot.LimelightHelpers.IMUData;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
@@ -69,9 +71,19 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * AprilTag field layout.
    */
-  private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+  private final AprilTagFieldLayout APRIL_TAG_FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
 
   private final IMUData imu = LimelightHelpers.getIMUData(getName());
+
+  // Refer to this link for explination of the keys: https://firstfrc.blob.core.windows.net/frc2025/FieldAssets/2025FieldDrawings-FieldLayoutAndMarking.pdf
+  // Values: 0 = Coral Station, 1 = Processor, 2 =  
+  private static final int[] APRIL_TAG_VALUES = new int[]{
+    0, 0, 1, 2, 2, 3, 3, 3, 3, 3, 3, 0, 0, 2, 2, 1, 3, 3, 3, 3, 3, 3
+  };
+  private static final double cos45 = Math.cos(45);
+  public static int getAprilTagValues(int i) {
+    return APRIL_TAG_VALUES[i-1];
+  }
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -584,10 +596,10 @@ public class SwerveSubsystem extends SubsystemBase {
     Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
 
     return this.swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(),
-                                                        scaledInputs.getY(),
-                                                        angle.getRadians(),
-                                                        getHeading().getRadians(),
-                                                        Constants.MAX_SPEED);
+                                                             scaledInputs.getY(),
+                                                             angle.getRadians(),
+                                                             getHeading().getRadians(),
+                                                             Constants.MAX_SPEED);
   }
 
   /**
@@ -642,7 +654,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return this.swerveDrive.getPitch();
   }
 
-   public void updateVisionOdometry(){
+  public void updateVisionOdometry(){
     boolean rejectUpdate = false;
     LimelightHelpers.SetRobotOrientation("limelight",this.swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
@@ -664,4 +676,36 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveDrive getSwerveDrive() {
     return this.swerveDrive;
   }
+
+  public void autoAlign()
+  {
+    int aprilValue = 3;
+
+    switch (aprilValue)
+    {
+      //case 0 -> 
+      //case 1 ->
+      //case 2 ->
+      case 3 -> {
+        
+        // Move this distance now, maybe minus a small offset, and lift the arm up simaltaniously
+      }
+    }
+
+  }
+
+  public Command alignRight()
+  {
+    return run(() -> drive(new ChassisSpeeds(0, -0.1, 0)))
+        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >=
+                     0.159);
+  }
+
+  public Command alignLeft()
+  {
+    return run(() -> drive(new ChassisSpeeds(0, 0.1, 0)))
+        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >=
+                     0.159);
+  }
+
 }

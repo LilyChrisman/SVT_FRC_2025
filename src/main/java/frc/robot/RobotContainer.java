@@ -186,6 +186,10 @@ public class RobotContainer {
       driverController.rightBumper().onChange(Commands.runOnce(() -> {
         this.toggleDriveIsDefault();
       }));
+
+      driverController.rightStick().onTrue((Commands.runOnce(drivebase::autoAlign)));
+      driverController.rightBumper().onTrue((Commands.runOnce(drivebase::alignRight)));
+      driverController.leftBumper().onTrue((Commands.runOnce(drivebase::alignLeft)));
       // operator
       utilityController.a().onTrue(Commands.deadline(
         arm.goToScoringGoal(ScoringGoal.Intake),
