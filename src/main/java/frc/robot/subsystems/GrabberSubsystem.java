@@ -38,7 +38,7 @@ public class GrabberSubsystem extends SubsystemBase{
 
     //Runs grabber inward very slowly. Should be used to just hold the coral
     public Command passiveIntake(){
-        final VoltageOut m_request = new VoltageOut(-0.5);
+        final VoltageOut m_request = new VoltageOut(-0.4);
         return runOnce(() -> {
             grabberMotor.setControl(m_request);
         });

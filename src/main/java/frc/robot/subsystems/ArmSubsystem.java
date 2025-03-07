@@ -22,7 +22,7 @@ public class ArmSubsystem extends SubsystemBase{
     protected double posForL3 = 44;
     protected double posForL2 = 20;
     protected double posForL1 = 18;
-    protected double posForCoralIntake = 0;
+    protected double posForCoralIntake = -1;
     
     // used to determine which goal pos to reposition when leaving manual mode
     protected ScoringGoal lastScoringGoal = ScoringGoal.None;
@@ -38,12 +38,31 @@ public class ArmSubsystem extends SubsystemBase{
 
     private boolean isManual = false;
 
-    private final double SHEATH_POS_CHANGE = 0.5;
-    public void sheath() {
-        this.runMotorManual(-SHEATH_POS_CHANGE);
+    protected double posAfterSheath = 0.0;
+    public Command recordPosBeforeSheath() {
+        this.posAfterSheath = this.armMotor.getPosition().getValueAsDouble() - SHEATH_POS_CHANGE;
+        return Commands.run(() -> {}); // no op
     }
-    public void unsheath() {
-        this.runMotorManual(SHEATH_POS_CHANGE);
+
+    private final double SHEATH_POS_CHANGE = 10;
+    public Command sheath() {
+        final MotionMagicVoltage m_request = new MotionMagicVoltage(this.posAfterSheath)
+            .withSlot(0);
+        return run(() -> {
+            armMotor.setControl(m_request);
+        });
+    }
+    public void cancelCommands() {
+        if(this.getCurrentCommand() != null) {
+            this.getCurrentCommand().cancel();
+        }
+    }
+    public Command convinceStuartHeIsInTheRightSpot() {
+        final MotionMagicVoltage m_request = new MotionMagicVoltage(this.armMotor.getPosition().getValueAsDouble())
+            .withSlot(0);
+        return run(() -> {
+            armMotor.setControl(m_request);
+        });
     }
 
     public void toggleManual() {
@@ -73,9 +92,7 @@ public class ArmSubsystem extends SubsystemBase{
             this.recordPositionBeforeManual();
         }
 
-        if(this.getCurrentCommand() != null) {
-            this.getCurrentCommand().cancel();
-        }
+        this.cancelCommands();
         this.armMotor.set(direction * 0.2);
 
         this.inManual = true;
@@ -121,6 +138,8 @@ public class ArmSubsystem extends SubsystemBase{
         SmartDashboard.putNumber("Arm Goal Intake", this.posForCoralIntake);
 
         SmartDashboard.putBoolean("Arm Manual Mode", this.isManual);
+
+        SmartDashboard.putNumber("Pos After Sheath", this.posAfterSheath);
 
         if (this.isManual) {
             // direction inverted so it's good

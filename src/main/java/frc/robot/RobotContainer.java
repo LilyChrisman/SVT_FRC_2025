@@ -42,7 +42,7 @@ public class RobotContainer {
     new File(Filesystem.getDeployDirectory(), "swerve")
   );
 
-  final double DRIVE_CONTROLLER_SLOW_DOWN = 0.5;
+  final double DRIVE_CONTROLLER_SLOW_DOWN = 0.7;
 
   final double DRIVE_CONTROLLER_MOD = 0.6;
   boolean driveIsDefaultSpeed = true;
@@ -176,7 +176,7 @@ public class RobotContainer {
       driverController.start()
         .onTrue(Commands.runOnce(drivebase::zeroGyro));
       driverController.leftStick()
-        .onChange(Commands.runOnce(() -> {
+        .onTrue(Commands.runOnce(() -> {
           this.toggleDriveIsDefault();
         }));
 
@@ -216,12 +216,10 @@ public class RobotContainer {
       // sheath
       utilityController.povDown()
         .onTrue(Commands.sequence(
-          Commands.runOnce(() -> {
-            arm.sheath();
-          }).withTimeout(0.1),
-          Commands.runOnce(() -> {
-            arm.unsheath();
-          }).withTimeout(0.1)
+          arm.recordPosBeforeSheath(), // TODO test
+          arm.sheath(),
+          Commands.waitSeconds(0.1),
+          arm.convinceStuartHeIsInTheRightSpot()
         ));
 
       // set elevator zero position manually

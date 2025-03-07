@@ -45,7 +45,6 @@ public class ExtakeSubsystem extends SubsystemBase{
 
     // 1 for up, -1 for down
     public void runMotorManual(double direction) {
-        System.out.println("Extake motor manual controller: " + direction);
         if(this.getCurrentCommand() != null){
             this.getCurrentCommand().cancel();
         }
