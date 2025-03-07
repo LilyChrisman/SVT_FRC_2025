@@ -80,7 +80,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   // Refer to this link for explination of the keys: https://firstfrc.blob.core.windows.net/frc2025/FieldAssets/2025FieldDrawings-FieldLayoutAndMarking.pdf
-  // Values: 0 = Coral Station, 1 = Processor, 2 =
+  // Values: 0 = Coral Station, 1 = Processor, 2 = Barge, 3 = Reef
   // corresponds to the real life tag ids - 1
   private static final int[] APRIL_TAG_VALUES = new int[]{
     0, 0, 1, 2, 2, 3, 3, 3, 3, 3, 3, 0, 0, 2, 2, 1, 3, 3, 3, 3, 3, 3
