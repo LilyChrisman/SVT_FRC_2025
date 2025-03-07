@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -26,6 +28,8 @@ import frc.robot.subsystems.ExtakeSubsystem;
 import frc.robot.subsystems.GrabberSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import java.security.AuthProvider;
+
 import swervelib.SwerveInputStream;
 
 /**
@@ -243,56 +247,15 @@ public class RobotContainer {
   long runningTime = 2000;
   public Command getAutonomousCommand()
   {
-    // if (startingTime == 0)
-    // {
-    //   startingTime = RobotController.getFPGATime();
-    // }
-    // if (RobotController.getFPGATime() <= startingTime + runningTime)
-    // {
-
-    //private final Command m_NothingAuto;
-
     // drive
-    auto_chooser.setDefaultOption("Drive Auto", Commands.run(() -> {
-      drivebase.drive( new ChassisSpeeds(0, 1, 0));
-    }, drivebase).withTimeout(2));
-    // prepare to score
-    auto_chooser.addOption(
-      "Score Auto", 
-      Commands.sequence(
-        // go forward into reef
-        Commands.run(
-            () -> {
-              drivebase.drive( new ChassisSpeeds(0, 1, 0));
-            },
-            drivebase
-          ).withTimeout(3),
-        // go backwards a little
-        Commands.run(
-            () -> {
-              drivebase.drive( new ChassisSpeeds(0, -1, 0));
-            },
-            drivebase
-          ).withTimeout(0.5),
-        // position for score
-        Commands.deadline(
-          this.extake.goToScoringGoal(ScoringGoal.L1),
-          this.arm.goToScoringGoal(ScoringGoal.L1)
-        ),
-        // score
-        Commands.run(() ->this.grabber.release())
-          .withTimeout(1)
-      )
-    );
+   // auto_chooser.setDefaultOption("Drive Auto", Commands.run(() -> {
+   //   drivebase.drive( new ChassisSpeeds(0, 1, 0));
+  //  }, drivebase).withTimeout(2));
 
-    SmartDashboard.putData(auto_chooser);
-    return auto_chooser.getSelected();
-    // }
-    // An example command will be run in autonomous
-    //return autoChooser.getSelected();
+    return new PathPlannerAuto("Score On High");
 
-    // return Commands.none();
-  
+    //SmartDashboard.putData(auto_chooser);
+   // return auto_chooser.getSelected();
   }
 
   public void setMotorBrake(boolean brake)
