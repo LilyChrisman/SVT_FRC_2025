@@ -8,7 +8,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.ScoringGoal;
 
 public class ArmSubsystem extends SubsystemBase{
@@ -17,18 +19,55 @@ public class ArmSubsystem extends SubsystemBase{
 
     //set positions for the arm to score
     protected double posForL4 = 40;
-    protected double posForL3 = 48;
+    protected double posForL3 = 44;
     protected double posForL2 = 20;
     protected double posForL1 = 18;
-    protected double posForCoralIntake = 0;
+    protected double posForCoralIntake = -1;
     
     // used to determine which goal pos to reposition when leaving manual mode
     protected ScoringGoal lastScoringGoal = ScoringGoal.None;
     protected double posBeforeManual = 0.0;
+
+    // why does this exist?????
+    // TODO change all instances of this to isManual and hope it works
     protected boolean inManual = false;
+
     // bad hacky i hate it
     protected double lastManualPos = 0.0;
     protected boolean wasManual = false;
+
+    private boolean isManual = false;
+
+    protected double posAfterSheath = 0.0;
+    public Command recordPosBeforeSheath() {
+        this.posAfterSheath = this.armMotor.getPosition().getValueAsDouble() - SHEATH_POS_CHANGE;
+        return Commands.run(() -> {}); // no op
+    }
+
+    private final double SHEATH_POS_CHANGE = 10;
+    public Command sheath() {
+        final MotionMagicVoltage m_request = new MotionMagicVoltage(this.posAfterSheath)
+            .withSlot(0);
+        return run(() -> {
+            armMotor.setControl(m_request);
+        });
+    }
+    public void cancelCommands() {
+        if(this.getCurrentCommand() != null) {
+            this.getCurrentCommand().cancel();
+        }
+    }
+    public Command convinceStuartHeIsInTheRightSpot() {
+        final MotionMagicVoltage m_request = new MotionMagicVoltage(this.armMotor.getPosition().getValueAsDouble())
+            .withSlot(0);
+        return run(() -> {
+            armMotor.setControl(m_request);
+        });
+    }
+
+    public void toggleManual() {
+        this.isManual = !this.isManual;
+    }
 
     protected void recordPositionBeforeManual() {
         this.posBeforeManual = this.armMotor.getPosition().getValueAsDouble();
@@ -37,7 +76,6 @@ public class ArmSubsystem extends SubsystemBase{
     // ran after exiting manual mode
     protected void setMotorPreferences() {
         double currentArmPos = this.lastManualPos;
-        System.out.println("set motor pref running!!!!!!!!!!!!!!!!!!");
         switch (this.lastScoringGoal) {
             case Intake -> this.posForCoralIntake = currentArmPos;
             case L1 -> this.posForL1 = currentArmPos;
@@ -54,9 +92,7 @@ public class ArmSubsystem extends SubsystemBase{
             this.recordPositionBeforeManual();
         }
 
-        if(this.getCurrentCommand() != null) {
-            this.getCurrentCommand().cancel();
-        }
+        this.cancelCommands();
         this.armMotor.set(direction * 0.2);
 
         this.inManual = true;
@@ -95,6 +131,21 @@ public class ArmSubsystem extends SubsystemBase{
         //Puts the arms position on the dashboard
         SmartDashboard.putNumber("Arm Position", armMotor.getPosition().getValueAsDouble());
 
+        SmartDashboard.putNumber("Arm Goal 1", this.posForL1);
+        SmartDashboard.putNumber("Arm Goal 2", this.posForL2);
+        SmartDashboard.putNumber("Arm Goal 3", this.posForL3);
+        SmartDashboard.putNumber("Arm Goal 4", this.posForL4);
+        SmartDashboard.putNumber("Arm Goal Intake", this.posForCoralIntake);
+
+        SmartDashboard.putBoolean("Arm Manual Mode", this.isManual);
+
+        SmartDashboard.putNumber("Pos After Sheath", this.posAfterSheath);
+
+        if (this.isManual) {
+            // direction inverted so it's good
+            this.runMotorManual(-RobotContainer.utilityController.getRightY());
+        }
+
         // bad hacky i hate it
         if(this.wasManual) {
             this.setMotorPreferences();
@@ -105,6 +156,8 @@ public class ArmSubsystem extends SubsystemBase{
     //Command to move the arm to a position, currently using Motion magic
     //If magic motion is not working, set MotionMagicVoltage to PositionVoltage. Will only use PID and optional feedforward
     public Command goToScoringGoal(ScoringGoal goal){
+        if(this.isManual) return Commands.run(() -> {}); // do nothing in manual for safety
+
         double position = switch (goal) {
             case Intake -> this.posForCoralIntake;
             case L1 -> this.posForL1;
@@ -113,9 +166,9 @@ public class ArmSubsystem extends SubsystemBase{
             case L4 -> this.posForL4;
             default -> 0;
         };
+
         final MotionMagicVoltage m_request = new MotionMagicVoltage(position)
             .withSlot(0);
-
         this.lastScoringGoal = goal;
         return run(() -> {
             armMotor.setControl(m_request);

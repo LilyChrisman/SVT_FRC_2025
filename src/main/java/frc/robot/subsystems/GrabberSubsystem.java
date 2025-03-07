@@ -37,15 +37,15 @@ public class GrabberSubsystem extends SubsystemBase{
     }
 
     //Runs grabber inward very slowly. Should be used to just hold the coral
-    public Command brake(){
-        final VoltageOut m_request = new VoltageOut(-.45);
+    public Command passiveIntake(){
+        final VoltageOut m_request = new VoltageOut(-0.4);
         return runOnce(() -> {
             grabberMotor.setControl(m_request);
         });
     }
 
     //grab command we are actively using. just turns inward very fast
-    public Command grab2(){
+    public Command activeIntake(){
         final VoltageOut m_request = new VoltageOut(-2);
         return run(() -> {
             grabberMotor.setControl(m_request);
@@ -54,7 +54,7 @@ public class GrabberSubsystem extends SubsystemBase{
 
     //just reverses the grabber motor to allow coral to fall out
     public Command release(){
-        final VoltageOut m_request = new VoltageOut(.7);
+        final VoltageOut m_request = new VoltageOut(.6);
         return run(() -> {
             grabberMotor.setControl(m_request);
         });
