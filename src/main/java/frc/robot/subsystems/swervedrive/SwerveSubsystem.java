@@ -41,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.IMUData;
+import frc.robot.LimelightHelpers.RawFiducial;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,11 +74,49 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   private final AprilTagFieldLayout APRIL_TAG_FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
 
+  private final String LIMELIGHT = "";
   private final IMUData imu = LimelightHelpers.getIMUData(getName());
 
   public void setMaxSpeed(double speed) {
     this.swerveDrive.setMaximumAllowableSpeeds(speed, speed);
   }
+
+  public void autoAlign() {
+    double rotationalXOffset = LimelightHelpers.getTX(LIMELIGHT);
+    LimelightHelpers.getFiducialID(LIMELIGHT);
+    int current_april = (int)LimelightHelpers.getFiducialID(LIMELIGHT);
+
+    RawFiducial[] aprilTags = LimelightHelpers.getRawFiducials(LIMELIGHT);
+    for (var aprilTag : aprilTags) {
+      if(aprilTag.id != current_april) continue;
+      
+      double distToRobot = aprilTag.distToRobot;
+      // make the distance a little further so it doesn't try to clip into the reef
+      distToRobot -= 1.0; // probably meters
+
+      this.drive(
+        new Translation2d(distToRobot, new Rotation2d(rotationalXOffset)),
+        Math.PI,
+        false
+      );
+      break;
+    }
+  }
+
+  public Command alignRight()
+  {
+    return run(() -> drive(new ChassisSpeeds(0, -0.1, 0)))
+        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >=
+                     0.159);
+  }
+
+  public Command alignLeft()
+  {
+    return run(() -> drive(new ChassisSpeeds(0, 0.1, 0)))
+        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >=
+                     0.159);
+  }
+
 
   // Refer to this link for explination of the keys: https://firstfrc.blob.core.windows.net/frc2025/FieldAssets/2025FieldDrawings-FieldLayoutAndMarking.pdf
   // Values: 0 = Coral Station, 1 = Processor, 2 =
@@ -665,7 +704,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void updateVisionOdometry(){
     boolean rejectUpdate = false;
     LimelightHelpers.SetRobotOrientation("limelight",this.swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT);
     if(Math.abs(imu.accelX) > 360){ // if our angular velocity is greater than 360 degrees per second, ignore vision updates
       rejectUpdate = true;
     }
@@ -684,36 +723,4 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveDrive getSwerveDrive() {
     return this.swerveDrive;
   }
-
-  public void autoAlign()
-  {
-    int aprilValue = 3;
-
-    switch (aprilValue)
-    {
-      //case 0 -> 
-      //case 1 ->
-      //case 2 ->
-      case 3 -> {
-        
-        // Move this distance now, maybe minus a small offset, and lift the arm up simaltaniously
-      }
-    }
-
-  }
-
-  public Command alignRight()
-  {
-    return run(() -> drive(new ChassisSpeeds(0, -0.1, 0)))
-        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >=
-                     0.159);
-  }
-
-  public Command alignLeft()
-  {
-    return run(() -> drive(new ChassisSpeeds(0, 0.1, 0)))
-        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >=
-                     0.159);
-  }
-
 }
