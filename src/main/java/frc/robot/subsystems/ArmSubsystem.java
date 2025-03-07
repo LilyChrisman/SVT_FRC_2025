@@ -75,7 +75,7 @@ public class ArmSubsystem extends SubsystemBase{
         slot0Configs.kV = 0.1; // Velocity
         slot0Configs.kA = 0.0; // Acceleration
 
-        slot0Configs.kP = 0.1; // A position error of 3 rotations results in 1.2 V output
+        slot0Configs.kP = 0.1; // A position error of 3 rotations results in .3 V output
         slot0Configs.kI = 0.0; // Integrated error
         slot0Configs.kD = 0.0; // Derivative
         slot0Configs.kG = 0.0;
