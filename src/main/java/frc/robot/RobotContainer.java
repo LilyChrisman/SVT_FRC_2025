@@ -44,21 +44,15 @@ public class RobotContainer {
 
   final double DRIVE_CONTROLLER_SLOW_DOWN = 0.5;
 
-  final double DRIVE_SPEED_DEFAULT = 0.6;
-  final double DRIVE_SPEED_SLOW = 0.25;
+  final double DRIVE_CONTROLLER_MOD = 0.6;
   boolean driveIsDefaultSpeed = true;
-  double driveSpeed = DRIVE_SPEED_DEFAULT;
 
   void toggleDriveIsDefault() {
     this.driveIsDefaultSpeed = !this.driveIsDefaultSpeed;
-    if(this.driveIsDefaultSpeed) {
-      
-    } else {
-
-    }
-    this.driveSpeed = this.driveIsDefaultSpeed ? DRIVE_SPEED_DEFAULT : DRIVE_SPEED_SLOW;
+    this.drivebase.setMaxSpeed(
+      this.driveIsDefaultSpeed ? Constants.MAX_SPEED : Constants.SLOWED_SPEED
+    );
   }
-
 
   SendableChooser<Command> auto_chooser = new SendableChooser<>();
 
@@ -66,8 +60,6 @@ public class RobotContainer {
   final ExtakeSubsystem extake = new ExtakeSubsystem();
   final GrabberSubsystem grabber = new GrabberSubsystem();
   final ArmSubsystem arm = new ArmSubsystem();
-
-  // private final SendableChooser<Command> autoChooser;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -115,8 +107,7 @@ public class RobotContainer {
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
-  public RobotContainer()
-  {
+  public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
@@ -124,7 +115,7 @@ public class RobotContainer {
     //Named commands for autonomous. In path planner, match the name of the command to the one set in here and it will
     //run the command associated with it
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
-    NamedCommands.registerCommand("grabCoral", grabber.grab2());
+    NamedCommands.registerCommand("grabCoral", grabber.activeIntake());
     NamedCommands.registerCommand("releaseCoral", grabber.release());
     NamedCommands.registerCommand("LiftScoreHigh", extake.goToScoringGoal(ScoringGoal.L4));
     NamedCommands.registerCommand("LiftPickupCoral", extake.goToScoringGoal(ScoringGoal.Intake));
@@ -137,7 +128,7 @@ public class RobotContainer {
     //Zeroes the gyro when the robot container is initialized
     drivebase.zeroGyro();
     //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
-    grabber.setDefaultCommand(grabber.brake());
+    grabber.setDefaultCommand(grabber.passiveIntake());
   }
 
   /**
@@ -180,23 +171,27 @@ public class RobotContainer {
       driverController.leftBumper().onTrue(Commands.none());
       driverController.rightBumper().onTrue(Commands.none());
     } else /* teleop */ {
-      //All controller inputs for main teleop mode
+      // All controller inputs for main teleop mode
       // driver
-      driverController.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverController.rightBumper().onChange(Commands.runOnce(() -> {
-        this.toggleDriveIsDefault();
-      }));
-
+      driverController.start()
+        .onTrue((Commands.runOnce(drivebase::zeroGyro)));
+      driverController.leftStick()
+        .onChange(Commands.runOnce(() -> {
+          this.toggleDriveIsDefault();
+        }));
       driverController.rightStick().onTrue((Commands.runOnce(drivebase::autoAlign)));
       driverController.rightBumper().onTrue((Commands.runOnce(drivebase::alignRight)));
       driverController.leftBumper().onTrue((Commands.runOnce(drivebase::alignLeft)));
       // operator
-      utilityController.a().onTrue(Commands.deadline(
-        arm.goToScoringGoal(ScoringGoal.Intake),
-        extake.goToScoringGoal(ScoringGoal.Intake)
-      ));
+      // grabber
       utilityController.leftBumper().whileTrue(Commands.deadline(
         grabber.release()
+      ));
+      utilityController.rightBumper().whileTrue(grabber.activeIntake());
+      // elevator/arm preset positions
+      utilityController.a().onTrue(Commands.deadline(
+        extake.goToScoringGoal(ScoringGoal.Intake),
+        arm.goToScoringGoal(ScoringGoal.Intake)
       ));
       utilityController.y().onTrue(Commands.deadline(
         extake.goToScoringGoal(ScoringGoal.L4),
@@ -210,7 +205,6 @@ public class RobotContainer {
         extake.goToScoringGoal(ScoringGoal.L1),
         arm.goToScoringGoal(ScoringGoal.L1)
       ));
-      utilityController.rightBumper().whileTrue(grabber.grab2());
       // manual override toggle for controlling the elevator
       utilityController.povLeft()
         .onTrue(Commands.runOnce(() -> {
@@ -223,16 +217,17 @@ public class RobotContainer {
         }));
       // sheath
       utilityController.povDown()
-        .onTrue(Commands.runOnce(() -> {
-          arm.sheath();
-        }));
-      // unsheath
-      utilityController.povDown()
-        .onFalse(Commands.runOnce(() -> {
-          arm.unsheath();
-        }));
+        .onTrue(Commands.sequence(
+          Commands.runOnce(() -> {
+            arm.sheath();
+          }).withTimeout(0.1),
+          Commands.runOnce(() -> {
+            arm.unsheath();
+          }).withTimeout(0.1)
+        ));
 
       // set elevator zero position manually
+      // I don't think this does anything
       utilityController.start()
         .onTrue(Commands.runOnce(extake::zeroPosition));
     }

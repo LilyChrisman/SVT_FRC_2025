@@ -75,8 +75,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final IMUData imu = LimelightHelpers.getIMUData(getName());
 
+  public void setMaxSpeed(double speed) {
+    this.swerveDrive.setMaximumAllowableSpeeds(speed, speed);
+  }
+
   // Refer to this link for explination of the keys: https://firstfrc.blob.core.windows.net/frc2025/FieldAssets/2025FieldDrawings-FieldLayoutAndMarking.pdf
-  // Values: 0 = Coral Station, 1 = Processor, 2 =  
+  // Values: 0 = Coral Station, 1 = Processor, 2 =
+  // corresponds to the real life tag ids - 1
   private static final int[] APRIL_TAG_VALUES = new int[]{
     0, 0, 1, 2, 2, 3, 3, 3, 3, 3, 3, 0, 0, 2, 2, 1, 3, 3, 3, 3, 3, 3
   };
@@ -84,6 +89,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public static int getAprilTagValues(int i) {
     return APRIL_TAG_VALUES[i-1];
   }
+
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -293,8 +299,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return Command to drive the robot using the setpoint generator.
    */
   public Command driveWithSetpointGeneratorFieldRelative(Supplier<ChassisSpeeds> fieldRelativeSpeeds) {
-    try
-    {
+    try {
       return driveWithSetpointGenerator(() -> {
         return ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds.get(), getHeading());
 
@@ -327,10 +332,12 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command sysIdAngleMotorCommand() {
     return SwerveDriveTest.generateSysIdCommand(
-        SwerveDriveTest.setAngleSysIdRoutine(
-            new Config(),
-            this, this.swerveDrive),
-        3.0, 5.0, 3.0);
+      SwerveDriveTest.setAngleSysIdRoutine(
+        new Config(),
+        this, this.swerveDrive
+      ),
+      3.0, 5.0, 3.0
+    );
   }
 
   /**
@@ -340,7 +347,8 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command centerModulesCommand() {
     return run(() -> Arrays.asList(this.swerveDrive.getModules())
-                           .forEach(it -> it.setAngle(0.0)));
+      .forEach(it -> it.setAngle(0.0))
+    );
   }
 
   /**
