@@ -26,6 +26,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExtakeSubsystem;
 import frc.robot.subsystems.GrabberSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import java.security.AuthProvider;
@@ -64,6 +65,7 @@ public class RobotContainer {
   final ExtakeSubsystem extake = new ExtakeSubsystem();
   final GrabberSubsystem grabber = new GrabberSubsystem();
   final ArmSubsystem arm = new ArmSubsystem();
+  final IntakeSubsystem intake = new IntakeSubsystem();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -133,6 +135,7 @@ public class RobotContainer {
     drivebase.zeroGyro();
     //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
     grabber.setDefaultCommand(grabber.passiveIntake());
+    intake.setDefaultCommand(intake.goToPos(intake.IDLE_POS));
   }
 
   /**
@@ -229,6 +232,14 @@ public class RobotContainer {
         //  Commands.waitSeconds(0.1),
          // arm.convinceStuartHeIsInTheRightSpot()
          arm.sheath()
+        ));
+        utilityController.rightTrigger(.5).whileTrue(Commands.parallel(
+          intake.goToPos(intake.INTAKE_POS),
+          intake.runIntake(2)
+        ));
+        utilityController.leftTrigger(.5).whileTrue(Commands.parallel(
+          intake.goToPos(intake.TRANSFER_POS),
+          intake.runIntake(-2)
         ));
 
       // set elevator zero position manually

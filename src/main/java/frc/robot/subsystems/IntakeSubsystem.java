@@ -13,9 +13,9 @@ public class IntakeSubsystem extends SubsystemBase{
     private final TalonFX rotatorMotor = new TalonFX(51, "rio");
     private final TalonFX wheelMotor = new TalonFX(52, "rio");
 
-    private final double IDLE_POS = 0;
-    private final double INTAKE_POS = 0;
-    private final double TRANSFER_POS = 0;
+    public final double IDLE_POS = 0;
+    public final double INTAKE_POS = 0;
+    public final double TRANSFER_POS = 0;
 
     public IntakeSubsystem(){
         var talonFXConfigs = new TalonFXConfiguration();
