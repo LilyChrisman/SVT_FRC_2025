@@ -224,10 +224,11 @@ public class RobotContainer {
       // sheath
       utilityController.povDown()
         .onTrue(Commands.sequence(
-          arm.recordPosBeforeSheath(), // TODO test
-          arm.sheath(),
-          Commands.waitSeconds(0.1),
-          arm.convinceStuartHeIsInTheRightSpot()
+         // arm.recordPosBeforeSheath(), // TODO test
+         // arm.sheath(),
+        //  Commands.waitSeconds(0.1),
+         // arm.convinceStuartHeIsInTheRightSpot()
+         arm.sheath()
         ));
 
       // set elevator zero position manually
