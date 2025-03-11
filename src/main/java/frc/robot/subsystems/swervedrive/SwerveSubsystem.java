@@ -100,7 +100,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
       Pose2d current_pos = this.getPose();
       Pose2d goal_pos = new Pose2d(
-        new Translation2d(distToRobot, new Rotation2d(0)),
+        new Translation2d(distToRobot, new Rotation2d(rotationalXOffset)),
         new Rotation2d(0)
       );
 
@@ -122,14 +122,14 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command alignRight()
   {
     return run(() -> drive(new ChassisSpeeds(0, -0.1, 0)))
-        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >=
+        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >
                      0.159);
   }
 
   public Command alignLeft()
   {
     return run(() -> drive(new ChassisSpeeds(0, 0.1, 0)))
-        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >=
+        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >
                      0.159);
   }
 
@@ -296,12 +296,12 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return PathFinding command
    */
   public Command driveToPose(Pose2d pose) {
-// Create the constraints to use while pathfinding
+    // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
         this.swerveDrive.getMaximumChassisVelocity(), 4.0,
         this.swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
 
-// Since AutoBuilder is configured, we can use it to build pathfinding commands
+    // Since AutoBuilder is configured, we can use it to build pathfinding commands
     return AutoBuilder.pathfindToPose(
         pose,
         constraints,
