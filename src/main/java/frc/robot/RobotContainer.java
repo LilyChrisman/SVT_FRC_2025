@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ExtakeSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GrabberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -62,7 +62,7 @@ public class RobotContainer {
   SendableChooser<Command> auto_chooser = new SendableChooser<>();
 
   //Initializes our three subsystems
-  final ExtakeSubsystem extake = new ExtakeSubsystem();
+  final ElevatorSubsystem extake = new ElevatorSubsystem();
   final GrabberSubsystem grabber = new GrabberSubsystem();
   final ArmSubsystem arm = new ArmSubsystem();
   final IntakeSubsystem intake = new IntakeSubsystem();
