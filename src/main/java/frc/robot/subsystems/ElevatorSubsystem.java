@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
-public class ExtakeSubsystem extends SubsystemBase{
+public class ElevatorSubsystem extends SubsystemBase{
     /** Motors for lift */
     private final TalonFX liftMotor1 = new TalonFX(31, "rio");
     private final TalonFX liftMotor2 = new TalonFX(32, "rio");
@@ -45,14 +45,13 @@ public class ExtakeSubsystem extends SubsystemBase{
 
     // 1 for up, -1 for down
     public void runMotorManual(double direction) {
-        System.out.println("Extake motor manual controller: " + direction);
         if(this.getCurrentCommand() != null){
             this.getCurrentCommand().cancel();
         }
         this.liftMotor1.set(direction * 0.3);
     }
 
-    public ExtakeSubsystem(){
+    public ElevatorSubsystem(){
         var talonFXConfigs = new TalonFXConfiguration();
 
         // set slot 0 gains

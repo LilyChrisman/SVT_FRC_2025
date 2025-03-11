@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -22,10 +24,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ExtakeSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GrabberSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import java.security.AuthProvider;
+
 import swervelib.SwerveInputStream;
 
 /**
@@ -42,7 +47,7 @@ public class RobotContainer {
     new File(Filesystem.getDeployDirectory(), "swerve")
   );
 
-  final double DRIVE_CONTROLLER_SLOW_DOWN = 0.5;
+  final double DRIVE_CONTROLLER_SLOW_DOWN = 0.7;
 
   final double DRIVE_CONTROLLER_MOD = 0.6;
   boolean driveIsDefaultSpeed = true;
@@ -57,9 +62,10 @@ public class RobotContainer {
   SendableChooser<Command> auto_chooser = new SendableChooser<>();
 
   //Initializes our three subsystems
-  final ExtakeSubsystem extake = new ExtakeSubsystem();
+  final ElevatorSubsystem extake = new ElevatorSubsystem();
   final GrabberSubsystem grabber = new GrabberSubsystem();
   final ArmSubsystem arm = new ArmSubsystem();
+  final IntakeSubsystem intake = new IntakeSubsystem();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -129,6 +135,7 @@ public class RobotContainer {
     drivebase.zeroGyro();
     //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
     grabber.setDefaultCommand(grabber.passiveIntake());
+    intake.setDefaultCommand(intake.goToPos(intake.IDLE_POS));
   }
 
   /**
@@ -171,17 +178,20 @@ public class RobotContainer {
       driverController.leftBumper().onTrue(Commands.none());
       driverController.rightBumper().onTrue(Commands.none());
     } else /* teleop */ {
+      // TODO make operator control do forced power intake during scoring position changes
       // All controller inputs for main teleop mode
       // driver
       driverController.start()
         .onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverController.leftStick()
-        .onChange(Commands.runOnce(() -> {
+        .onTrue(Commands.runOnce(() -> {
           this.toggleDriveIsDefault();
         }));
-      driverController.rightStick().onTrue((Commands.runOnce(drivebase::autoAlign)));
-      driverController.rightBumper().onTrue((Commands.runOnce(drivebase::alignRight)));
-      driverController.leftBumper().onTrue((Commands.runOnce(drivebase::alignLeft)));
+      // limelight control
+      driverController.a().whileTrue(Commands.run(() -> drivebase.autoAlign().execute()));
+      driverController.rightBumper().onTrue(Commands.runOnce(drivebase::alignRight));
+      driverController.leftBumper().onTrue(Commands.runOnce(drivebase::alignLeft));
+
       // operator
       // grabber
       utilityController.leftBumper().whileTrue(Commands.deadline(
@@ -218,12 +228,19 @@ public class RobotContainer {
       // sheath
       utilityController.povDown()
         .onTrue(Commands.sequence(
-          Commands.runOnce(() -> {
-            arm.sheath();
-          }).withTimeout(0.1),
-          Commands.runOnce(() -> {
-            arm.unsheath();
-          }).withTimeout(0.1)
+         // arm.recordPosBeforeSheath(), // TODO test
+         // arm.sheath(),
+        //  Commands.waitSeconds(0.1),
+         // arm.convinceStuartHeIsInTheRightSpot()
+         arm.sheath()
+        ));
+        utilityController.rightTrigger(.5).whileTrue(Commands.parallel(
+          intake.goToPos(intake.INTAKE_POS),
+          intake.runIntake(2)
+        ));
+        utilityController.leftTrigger(.5).whileTrue(Commands.parallel(
+          intake.goToPos(intake.TRANSFER_POS),
+          intake.runIntake(-2)
         ));
 
       // set elevator zero position manually
@@ -243,56 +260,13 @@ public class RobotContainer {
   long runningTime = 2000;
   public Command getAutonomousCommand()
   {
-    // if (startingTime == 0)
-    // {
-    //   startingTime = RobotController.getFPGATime();
-    // }
-    // if (RobotController.getFPGATime() <= startingTime + runningTime)
-    // {
-
-    //private final Command m_NothingAuto;
-
     // drive
-    auto_chooser.setDefaultOption("Drive Auto", Commands.run(() -> {
-      drivebase.drive( new ChassisSpeeds(0, 1, 0));
-    }, drivebase).withTimeout(2));
-    // prepare to score
-    auto_chooser.addOption(
-      "Score Auto", 
-      Commands.sequence(
-        // go forward into reef
-        Commands.run(
-            () -> {
-              drivebase.drive( new ChassisSpeeds(0, 1, 0));
-            },
-            drivebase
-          ).withTimeout(3),
-        // go backwards a little
-        Commands.run(
-            () -> {
-              drivebase.drive( new ChassisSpeeds(0, -1, 0));
-            },
-            drivebase
-          ).withTimeout(0.5),
-        // position for score
-        Commands.deadline(
-          this.extake.goToScoringGoal(ScoringGoal.L1),
-          this.arm.goToScoringGoal(ScoringGoal.L1)
-        ),
-        // score
-        Commands.run(() ->this.grabber.release())
-          .withTimeout(1)
-      )
-    );
+    // auto_chooser.setDefaultOption("Drive Auto", Commands.run(() -> drivebase.drive( new ChassisSpeeds(0, 1, 0)), drivebase).withTimeout(2));
 
-    SmartDashboard.putData(auto_chooser);
-    return auto_chooser.getSelected();
-    // }
-    // An example command will be run in autonomous
-    //return autoChooser.getSelected();
+    return new PathPlannerAuto("Score On High");
 
-    // return Commands.none();
-  
+    //SmartDashboard.putData(auto_chooser);
+    // return auto_chooser.getSelected();
   }
 
   public void setMotorBrake(boolean brake)
