@@ -86,12 +86,12 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command autoAlign() {
     double rotationalXOffset = LimelightHelpers.getTX(LIMELIGHT);
     System.out.println("tx: " + rotationalXOffset);
-    int current_april = (int)LimelightHelpers.getFiducialID(LIMELIGHT);
-    System.out.println("April id: " + current_april);
+    int currentApril = (int)LimelightHelpers.getFiducialID(LIMELIGHT);
+    System.out.println("April id: " + currentApril);
 
     RawFiducial[] aprilTags = LimelightHelpers.getRawFiducials(LIMELIGHT);
     for (var aprilTag : aprilTags) {
-      if(aprilTag.id != current_april) continue;
+      if(aprilTag.id != currentApril) continue;
       
       double distToRobot = aprilTag.distToRobot;
       // make the distance a little further so it doesn't try to clip into the reef
@@ -99,7 +99,7 @@ public class SwerveSubsystem extends SubsystemBase {
       System.out.println("Distance: " + distToRobot);
 
       Pose2d current_pos = this.getPose();
-      Pose2d goal_pos = new Pose2d(
+      Pose2d goalPos = new Pose2d(
         new Translation2d(distToRobot, new Rotation2d(rotationalXOffset)),
         new Rotation2d(0)
       );
