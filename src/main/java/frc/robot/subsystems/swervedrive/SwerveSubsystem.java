@@ -13,6 +13,7 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.controllers.PPLTVController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
@@ -81,10 +82,11 @@ public class SwerveSubsystem extends SubsystemBase {
     this.swerveDrive.setMaximumAllowableSpeeds(speed, speed);
   }
 
-  public void autoAlign() {
+  public Command autoAlign() {
     double rotationalXOffset = LimelightHelpers.getTX(LIMELIGHT);
-    LimelightHelpers.getFiducialID(LIMELIGHT);
+    System.out.println("tx: " + rotationalXOffset);
     int current_april = (int)LimelightHelpers.getFiducialID(LIMELIGHT);
+    System.out.println("April id: " + current_april);
 
     RawFiducial[] aprilTags = LimelightHelpers.getRawFiducials(LIMELIGHT);
     for (var aprilTag : aprilTags) {
@@ -93,14 +95,27 @@ public class SwerveSubsystem extends SubsystemBase {
       double distToRobot = aprilTag.distToRobot;
       // make the distance a little further so it doesn't try to clip into the reef
       distToRobot -= 1.0; // probably meters
+      System.out.println("Distance: " + distToRobot);
 
-      this.drive(
-        new Translation2d(distToRobot, new Rotation2d(rotationalXOffset)),
-        Math.PI,
-        false
+      Pose2d current_pos = this.getPose();
+      Pose2d goal_pos = new Pose2d(
+        new Translation2d(distToRobot, new Rotation2d(0)),
+        new Rotation2d(0)
       );
-      break;
+
+      System.out.println("Current: " + this.getPose());
+      System.out.println("Goal: " + goal_pos);
+
+      return this.driveToPose(goal_pos);
+
+      //this.drive(
+      //  new Translation2d(distToRobot, new Rotation2d(rotationalXOffset)),
+      //  Math.PI,
+      //  false
+      //);
     }
+    System.out.println("Fallback branch");
+    return this.driveToPose(this.getPose()); // no-op
   }
 
   public Command alignRight()
@@ -163,6 +178,8 @@ public class SwerveSubsystem extends SubsystemBase {
     ); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
     this.swerveDrive.setMotorIdleMode(true); // make them not coast like California
     this.swerveDrive.synchronizeModuleEncoders(); // make the robot not stupid
+
+    setupPathPlanner();
   }
   /**
    * Construct the swerve drive.

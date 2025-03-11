@@ -175,6 +175,7 @@ public class RobotContainer {
       driverController.leftBumper().onTrue(Commands.none());
       driverController.rightBumper().onTrue(Commands.none());
     } else /* teleop */ {
+      // TODO make operator control do forced power intake during scoring position changes
       // All controller inputs for main teleop mode
       // driver
       driverController.start()
@@ -184,9 +185,9 @@ public class RobotContainer {
           this.toggleDriveIsDefault();
         }));
       // limelight control
-      driverController.rightStick().onTrue((Commands.runOnce(drivebase::autoAlign)));
-      driverController.rightBumper().onTrue((Commands.runOnce(drivebase::alignRight)));
-      driverController.leftBumper().onTrue((Commands.runOnce(drivebase::alignLeft)));
+      driverController.a().whileTrue(Commands.run(() -> drivebase.autoAlign().execute()));
+      driverController.rightBumper().onTrue(Commands.runOnce(drivebase::alignRight));
+      driverController.leftBumper().onTrue(Commands.runOnce(drivebase::alignLeft));
 
       // operator
       // grabber
@@ -248,14 +249,12 @@ public class RobotContainer {
   public Command getAutonomousCommand()
   {
     // drive
-   // auto_chooser.setDefaultOption("Drive Auto", Commands.run(() -> {
-   //   drivebase.drive( new ChassisSpeeds(0, 1, 0));
-  //  }, drivebase).withTimeout(2));
+    // auto_chooser.setDefaultOption("Drive Auto", Commands.run(() -> drivebase.drive( new ChassisSpeeds(0, 1, 0)), drivebase).withTimeout(2));
 
     return new PathPlannerAuto("Score On High");
 
     //SmartDashboard.putData(auto_chooser);
-   // return auto_chooser.getSelected();
+    // return auto_chooser.getSelected();
   }
 
   public void setMotorBrake(boolean brake)
