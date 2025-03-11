@@ -33,6 +33,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.ADIS16448_IMU.IMUAxis;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -201,6 +202,7 @@ public class SwerveSubsystem extends SubsystemBase {
   
   @Override
   public void periodic() {
+    LimelightHelpers.printPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT));
     this.swerveDrive.updateOdometry();
   }
 
