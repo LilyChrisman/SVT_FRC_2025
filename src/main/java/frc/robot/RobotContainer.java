@@ -30,6 +30,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import java.security.AuthProvider;
+import java.util.function.Function;
 
 import swervelib.SwerveInputStream;
 
@@ -202,18 +203,20 @@ public class RobotContainer {
         arm.goToScoringGoal(ScoringGoal.PrepareIntake)
       ));
       // scoring
-      utilityController.y().onTrue(Commands.deadline(
-        elevator.goToScoringGoal(ScoringGoal.L4),
-        arm.goToScoringGoal(ScoringGoal.L4)
-      ));
-      utilityController.x().onTrue(Commands.deadline(
-        elevator.goToScoringGoal(ScoringGoal.L3),
-        arm.goToScoringGoal(ScoringGoal.L3)
-      ));
-      utilityController.b().onTrue(Commands.deadline(
-        elevator.goToScoringGoal(ScoringGoal.L2),
-        arm.goToScoringGoal(ScoringGoal.L2)
-      ));
+      // composing a deadline of commands into a funtion
+      Function<ScoringGoal, Command> scoringCommand = (goal) -> {
+        return Commands.deadline(
+          Commands.parallel(
+            elevator.goToScoringGoal(goal),
+            arm.goToScoringGoal(goal)
+          ),
+          grabber.activeIntake()
+        );
+      };
+      utilityController.y().onTrue(scoringCommand.apply(ScoringGoal.L4));
+      utilityController.x().onTrue(scoringCommand.apply(ScoringGoal.L3));
+      utilityController.b().onTrue(scoringCommand.apply(ScoringGoal.L2));
+
       // manual override toggle for controlling the elevator
       utilityController.povLeft()
         .onTrue(Commands.runOnce(() -> {
@@ -224,7 +227,7 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> {
           arm.toggleManual();
         }));
-      // sheath
+      // sheath (doesn't work)
       utilityController.povDown().onTrue(arm.sheath(grabber));
 
       // ground intake

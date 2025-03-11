@@ -74,7 +74,7 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * AprilTag field layout.
    */
-  private final AprilTagFieldLayout APRIL_TAG_FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+  private final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
   private final String LIMELIGHT = "";
   private final IMUData imu = LimelightHelpers.getIMUData(getName());
@@ -98,12 +98,14 @@ public class SwerveSubsystem extends SubsystemBase {
       distToRobot -= 1.0; // probably meters
       System.out.println("Distance: " + distToRobot);
 
-      Pose2d goalPos = getStupidDumbHardcodedAprilTagPosition(currentApril);
+      Pose3d tagPosition = FIELD_LAYOUT.getTagPose(currentApril).get();
+
+      //Pose2d goalPos = getStupidDumbHardcodedAprilTagPosition(currentApril);
 
       System.out.println("Current: " + this.getPose());
-      System.out.println("Goal: " + goalPos);
+      System.out.println("Goal: " + tagPosition);
 
-      return this.driveToPose(goalPos);
+      return this.driveToPose(tagPosition.toPose2d());
 
       //this.drive(
       //  new Translation2d(distToRobot, new Rotation2d(rotationalXOffset)),
