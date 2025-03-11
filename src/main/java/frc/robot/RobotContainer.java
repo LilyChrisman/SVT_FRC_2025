@@ -62,7 +62,7 @@ public class RobotContainer {
   SendableChooser<Command> auto_chooser = new SendableChooser<>();
 
   //Initializes our three subsystems
-  final ElevatorSubsystem extake = new ElevatorSubsystem();
+  final ElevatorSubsystem elevator = new ElevatorSubsystem();
   final GrabberSubsystem grabber = new GrabberSubsystem();
   final ArmSubsystem arm = new ArmSubsystem();
   final IntakeSubsystem intake = new IntakeSubsystem();
@@ -123,8 +123,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
     NamedCommands.registerCommand("grabCoral", grabber.activeIntake());
     NamedCommands.registerCommand("releaseCoral", grabber.release());
-    NamedCommands.registerCommand("LiftScoreHigh", extake.goToScoringGoal(ScoringGoal.L4));
-    NamedCommands.registerCommand("LiftPickupCoral", extake.goToScoringGoal(ScoringGoal.Intake));
+    NamedCommands.registerCommand("LiftScoreHigh", elevator.goToScoringGoal(ScoringGoal.L4));
+    NamedCommands.registerCommand("LiftPickupCoral", elevator.goToScoringGoal(ScoringGoal.Intake));
     NamedCommands.registerCommand("ArmScoreHigh", arm.goToScoringGoal(ScoringGoal.L4));
     NamedCommands.registerCommand("ArmPickupCoral", arm.goToScoringGoal(ScoringGoal.Intake));
     NamedCommands.registerCommand("ArmScoreLow", arm.goToScoringGoal(ScoringGoal.L1));
@@ -194,30 +194,30 @@ public class RobotContainer {
       // operator
       // extake / intake
       utilityController.leftBumper().whileTrue(grabber.release());
-      utilityController.rightBumper().onTrue(extake.runIntake(grabber));
+      utilityController.rightBumper().onTrue(elevator.runIntake(grabber));
       
       // elevator/arm preset positions
       utilityController.a().onTrue(Commands.deadline(
-        extake.goToScoringGoal(ScoringGoal.PrepareIntake),
+        elevator.goToScoringGoal(ScoringGoal.PrepareIntake),
         arm.goToScoringGoal(ScoringGoal.PrepareIntake)
       ));
       // scoring
       utilityController.y().onTrue(Commands.deadline(
-        extake.goToScoringGoal(ScoringGoal.L4),
+        elevator.goToScoringGoal(ScoringGoal.L4),
         arm.goToScoringGoal(ScoringGoal.L4)
       ));
       utilityController.x().onTrue(Commands.deadline(
-        extake.goToScoringGoal(ScoringGoal.L3),
+        elevator.goToScoringGoal(ScoringGoal.L3),
         arm.goToScoringGoal(ScoringGoal.L3)
       ));
       utilityController.b().onTrue(Commands.deadline(
-        extake.goToScoringGoal(ScoringGoal.L2),
+        elevator.goToScoringGoal(ScoringGoal.L2),
         arm.goToScoringGoal(ScoringGoal.L2)
       ));
       // manual override toggle for controlling the elevator
       utilityController.povLeft()
         .onTrue(Commands.runOnce(() -> {
-          extake.toggleManual();
+          elevator.toggleManual();
         }));
       // manual override toggle for controlling the arm
       utilityController.povRight()
@@ -238,7 +238,7 @@ public class RobotContainer {
       // set elevator zero position manually
       // I don't think this does anything
       utilityController.start()
-        .onTrue(Commands.runOnce(extake::zeroPosition));
+        .onTrue(Commands.runOnce(elevator::zeroPosition));
     }
   }
 
