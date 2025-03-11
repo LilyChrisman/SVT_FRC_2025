@@ -135,7 +135,7 @@ public class RobotContainer {
     drivebase.zeroGyro();
     //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
     grabber.setDefaultCommand(grabber.passiveIntake());
-    intake.setDefaultCommand(intake.goToPos(intake.IDLE_POS));
+    intake.setDefaultCommand(intake.goToPos(intake.IDLE_POS, 0));
   }
 
   /**
@@ -151,8 +151,7 @@ public class RobotContainer {
     Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
     Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
     Command driveRobotOrientedAngularVelocity  = drivebase.driveFieldOriented(driveRobotOriented);
-    Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngle);
+    Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
     Command driveFieldOrientedDirectAngleKeyboard      = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
     Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
     Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngleKeyboard);
@@ -193,16 +192,16 @@ public class RobotContainer {
       driverController.leftBumper().onTrue(Commands.runOnce(drivebase::alignLeft));
 
       // operator
-      // grabber
-      utilityController.leftBumper().whileTrue(Commands.deadline(
-        grabber.release()
-      ));
-      utilityController.rightBumper().whileTrue(grabber.activeIntake());
+      // extake / intake
+      utilityController.leftBumper().whileTrue(grabber.release());
+      utilityController.rightBumper().onTrue(extake.runIntake(grabber));
+      
       // elevator/arm preset positions
       utilityController.a().onTrue(Commands.deadline(
-        extake.goToScoringGoal(ScoringGoal.Intake),
-        arm.goToScoringGoal(ScoringGoal.Intake)
+        extake.goToScoringGoal(ScoringGoal.PrepareIntake),
+        arm.goToScoringGoal(ScoringGoal.PrepareIntake)
       ));
+      // scoring
       utilityController.y().onTrue(Commands.deadline(
         extake.goToScoringGoal(ScoringGoal.L4),
         arm.goToScoringGoal(ScoringGoal.L4)
@@ -212,8 +211,8 @@ public class RobotContainer {
         arm.goToScoringGoal(ScoringGoal.L3)
       ));
       utilityController.b().onTrue(Commands.deadline(
-        extake.goToScoringGoal(ScoringGoal.L1),
-        arm.goToScoringGoal(ScoringGoal.L1)
+        extake.goToScoringGoal(ScoringGoal.L2),
+        arm.goToScoringGoal(ScoringGoal.L2)
       ));
       // manual override toggle for controlling the elevator
       utilityController.povLeft()
@@ -226,22 +225,15 @@ public class RobotContainer {
           arm.toggleManual();
         }));
       // sheath
-      utilityController.povDown()
-        .onTrue(Commands.sequence(
-         // arm.recordPosBeforeSheath(), // TODO test
-         // arm.sheath(),
-        //  Commands.waitSeconds(0.1),
-         // arm.convinceStuartHeIsInTheRightSpot()
-         arm.sheath()
-        ));
-        utilityController.rightTrigger(.5).whileTrue(Commands.parallel(
-          intake.goToPos(intake.INTAKE_POS),
-          intake.runIntake(2)
-        ));
-        utilityController.leftTrigger(.5).whileTrue(Commands.parallel(
-          intake.goToPos(intake.TRANSFER_POS),
-          intake.runIntake(-2)
-        ));
+      utilityController.povDown().onTrue(arm.sheath(grabber));
+
+      // ground intake
+      utilityController.rightTrigger(.5).whileTrue(
+        intake.goToPos(intake.INTAKE_POS, 2)
+      );
+      utilityController.leftTrigger(.5).whileTrue(
+        intake.goToPos(intake.TRANSFER_POS, -2)
+      );
 
       // set elevator zero position manually
       // I don't think this does anything

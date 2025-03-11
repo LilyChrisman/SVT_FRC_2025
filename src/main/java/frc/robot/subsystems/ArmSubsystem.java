@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.ScoringGoal;
+import frc.robot.subsystems.GrabberSubsystem;
 
 public class ArmSubsystem extends SubsystemBase{
     /** Motor for arm on the lift that has the grabber on the end */
@@ -20,7 +21,7 @@ public class ArmSubsystem extends SubsystemBase{
     //set positions for the arm to score
     protected double posForL4 = 40;
     protected double posForL3 = 44;
-    protected double posForL2 = 20;
+    protected double posForL2 = 32;
     protected double posForL1 = 18;
     protected double posForCoralIntake = -1;
     
@@ -38,20 +39,14 @@ public class ArmSubsystem extends SubsystemBase{
 
     private boolean isManual = false;
 
-    protected double posAfterSheath = 0.0;
-    public Command recordPosBeforeSheath() {
-        this.posAfterSheath = this.armMotor.getPosition().getValueAsDouble() - SHEATH_POS_CHANGE;
-        return Commands.run(() -> {}); // no op
+    public Command sheath(GrabberSubsystem grabber) {
+        return Commands.sequence(
+            //Commands.run(() -> this.runMotorManual(-1)).withTimeout(0.1),
+            grabber.release().withTimeout(0.1)
+            //Commands.run(() -> this.runMotorManual(1)).withTimeout(0.1)
+        );
     }
 
-    private final double SHEATH_POS_CHANGE = 10;
-    public Command sheath() {
-        final MotionMagicVoltage m_request = new MotionMagicVoltage(this.armMotor.getPosition().getValueAsDouble()-10)
-            .withSlot(0);
-        return run(() -> {
-            armMotor.setControl(m_request);
-        });
-    }
     public void cancelCommands() {
         if(this.getCurrentCommand() != null) {
             this.getCurrentCommand().cancel();
@@ -139,8 +134,6 @@ public class ArmSubsystem extends SubsystemBase{
 
         SmartDashboard.putBoolean("Arm Manual Mode", this.isManual);
 
-        SmartDashboard.putNumber("Pos After Sheath", this.posAfterSheath);
-
         if (this.isManual) {
             // direction inverted so it's good
             this.runMotorManual(-RobotContainer.utilityController.getRightY());
@@ -156,10 +149,10 @@ public class ArmSubsystem extends SubsystemBase{
     //Command to move the arm to a position, currently using Motion magic
     //If magic motion is not working, set MotionMagicVoltage to PositionVoltage. Will only use PID and optional feedforward
     public Command goToScoringGoal(ScoringGoal goal){
-        if(this.isManual) return Commands.run(() -> {}); // do nothing in manual for safety
+        this.isManual = false;
 
         double position = switch (goal) {
-            case Intake -> this.posForCoralIntake;
+            case Intake, PrepareIntake -> this.posForCoralIntake;
             case L1 -> this.posForL1;
             case L2 -> this.posForL2;
             case L3 -> this.posForL3;

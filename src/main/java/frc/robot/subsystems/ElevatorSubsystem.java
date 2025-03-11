@@ -28,7 +28,8 @@ public class ElevatorSubsystem extends SubsystemBase{
     protected final double LIFT_SCORE_L3 = -1;
     protected final double LIFT_SCORE_L4 = -83.0;
     protected final double LIFT_BOTTOM = 0;
-    protected final double LIFT_PICKUP_CORAL = 0 ;
+    protected final double LIFT_PREPARE_INTAKE_CORAL = -13;
+    protected final double LIFT_INTAKE_CORAL = -2;
 
     //Checks if we have run the lift down to zero position
     private boolean hasZeroed = false;
@@ -107,10 +108,14 @@ public class ElevatorSubsystem extends SubsystemBase{
 
     //Command to run the lift to a position. Uses Magic Motion profiling
     public Command goToScoringGoal(ScoringGoal goal){
-        if(this.isManual) return Commands.run(() -> {}); // do nothing in manual for safety
+        this.isManual = false;
+        if(this.getCurrentCommand() != null) {
+            this.getCurrentCommand().cancel();
+        }
 
         double position = switch (goal) {
-            case Intake -> LIFT_PICKUP_CORAL;
+            case PrepareIntake -> LIFT_PREPARE_INTAKE_CORAL;
+            case Intake -> LIFT_INTAKE_CORAL;
             case L1 -> LIFT_SCORE_L1;
             case L2 -> LIFT_SCORE_L2;
             case L3 -> LIFT_SCORE_L3;
@@ -120,8 +125,23 @@ public class ElevatorSubsystem extends SubsystemBase{
 
         final MotionMagicVoltage m_request = new MotionMagicVoltage(position)
             .withSlot(0);
-         return run(() -> {
-            liftMotor1.setControl(m_request);
-         });
+        return run(() -> {
+           liftMotor1.setControl(m_request);
+        });
+    }
+
+    boolean aroundPos(double pos) {
+        double cpos = this.liftMotor1.getPosition().getValueAsDouble();
+        return cpos >= pos-0.5 && cpos <= pos+0.5;
+    }
+
+    public Command runIntake(GrabberSubsystem grabber) {
+        if(this.isManual) return Commands.run(() -> {}); // do nothing in manual for safety
+        
+        return Commands.sequence(
+            this.goToScoringGoal(ScoringGoal.Intake).withTimeout(0.5),
+            grabber.activeIntake().withTimeout(0.1),
+            this.goToScoringGoal(ScoringGoal.PrepareIntake).withTimeout(0.25)
+        );
     }
 }
