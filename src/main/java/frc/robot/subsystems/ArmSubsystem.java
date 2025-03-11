@@ -46,7 +46,7 @@ public class ArmSubsystem extends SubsystemBase{
 
     private final double SHEATH_POS_CHANGE = 10;
     public Command sheath() {
-        final MotionMagicVoltage m_request = new MotionMagicVoltage(this.posAfterSheath)
+        final MotionMagicVoltage m_request = new MotionMagicVoltage(this.armMotor.getPosition().getValueAsDouble()-10)
             .withSlot(0);
         return run(() -> {
             armMotor.setControl(m_request);
