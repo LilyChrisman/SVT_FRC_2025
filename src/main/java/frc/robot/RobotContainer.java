@@ -187,7 +187,7 @@ public class RobotContainer {
           this.toggleDriveIsDefault();
         }));
       // limelight control
-      driverController.a().whileTrue(Commands.run(() -> drivebase.autoAlign().execute()));
+      driverController.a().whileTrue(drivebase.autoAlign());
       driverController.rightBumper().onTrue(Commands.runOnce(drivebase::alignRight));
       driverController.leftBumper().onTrue(Commands.runOnce(drivebase::alignLeft));
 

@@ -98,16 +98,16 @@ public class SwerveSubsystem extends SubsystemBase {
       distToRobot -= 1.0; // probably meters
       System.out.println("Distance: " + distToRobot);
 
-      Pose2d current_pos = this.getPose();
-      Pose2d goal_pos = new Pose2d(
+      Pose2d currentPos = this.getPose();
+      Pose2d goalPos = new Pose2d(
         new Translation2d(distToRobot, new Rotation2d(0)),
         new Rotation2d(0)
       );
 
       System.out.println("Current: " + this.getPose());
-      System.out.println("Goal: " + goal_pos);
+      System.out.println("Goal: " + goalPos);
 
-      return this.driveToPose(goal_pos);
+      return this.driveToPose(goalPos);
 
       //this.drive(
       //  new Translation2d(distToRobot, new Rotation2d(rotationalXOffset)),
