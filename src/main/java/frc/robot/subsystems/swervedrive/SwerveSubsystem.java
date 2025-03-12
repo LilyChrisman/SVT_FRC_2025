@@ -145,18 +145,14 @@ public class SwerveSubsystem extends SubsystemBase {
     return stupidDumbHardcodedAprilTagPositions[id-1];
   }
 
-  public Command alignRight()
-  {
-    return run(() -> drive(new ChassisSpeeds(0, -0.1, 0)))
-        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >
-                     0.159);
+  public Command alignRight() {
+    return run(() -> this.drive(new ChassisSpeeds(0, -0.1, 0)))
+      .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) > 0.159);
   }
 
-  public Command alignLeft()
-  {
-    return run(() -> drive(new ChassisSpeeds(0, 0.1, 0)))
-        .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >
-                     0.159);
+  public Command alignLeft() {
+    return run(() -> this.drive(new ChassisSpeeds(0, 0.1, 0)))
+      .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) > 0.159);
   }
 
 

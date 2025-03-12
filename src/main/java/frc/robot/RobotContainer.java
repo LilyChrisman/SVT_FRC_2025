@@ -256,12 +256,14 @@ public class RobotContainer {
   public Command getAutonomousCommand()
   {
     // drive
-    // auto_chooser.setDefaultOption("Drive Auto", Commands.run(() -> drivebase.drive( new ChassisSpeeds(0, 1, 0)), drivebase).withTimeout(2));
+    return Commands.run(
+      () -> drivebase.drive(new ChassisSpeeds(-1, 0, 0)),
+      drivebase
+    ).withTimeout(1);
 
-    return new PathPlannerAuto("Score On High");
+    //return new PathPlannerAuto("Score On High");
 
     //SmartDashboard.putData(auto_chooser);
-    // return auto_chooser.getSelected();
   }
 
   public void setMotorBrake(boolean brake)
