@@ -85,9 +85,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Command autoAlign() {
     double rotationalXOffset = LimelightHelpers.getTX(LIMELIGHT);
-    System.out.println("tx: " + rotationalXOffset);
+    //System.out.println("tx: " + rotationalXOffset);
     int currentApril = (int)LimelightHelpers.getFiducialID(LIMELIGHT);
-    System.out.println("April id: " + currentApril);
+    //System.out.println("April id: " + currentApril);
 
     RawFiducial[] aprilTags = LimelightHelpers.getRawFiducials(LIMELIGHT);
     for (var aprilTag : aprilTags) {
@@ -96,14 +96,14 @@ public class SwerveSubsystem extends SubsystemBase {
       double distToRobot = aprilTag.distToRobot;
       // make the distance a little further so it doesn't try to clip into the reef
       distToRobot -= 1.0; // probably meters
-      System.out.println("Distance: " + distToRobot);
+      //System.out.println("Distance: " + distToRobot);
 
       Pose3d tagPosition = FIELD_LAYOUT.getTagPose(currentApril).get();
 
       //Pose2d goalPos = getStupidDumbHardcodedAprilTagPosition(currentApril);
 
-      System.out.println("Current: " + this.getPose());
-      System.out.println("Goal: " + tagPosition);
+      //System.out.println("Current: " + this.getPose());
+      //System.out.println("Goal: " + tagPosition);
 
       return this.driveToPose(tagPosition.toPose2d());
 
@@ -113,7 +113,7 @@ public class SwerveSubsystem extends SubsystemBase {
       //  false
       //);
     }
-    System.out.println("Fallback branch");
+    //System.out.println("Fallback branch");
     return this.driveToPose(this.getPose()); // no-op
   }
 

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -27,6 +28,7 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GrabberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem.IntakePosition;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import java.security.AuthProvider;
@@ -136,7 +138,7 @@ public class RobotContainer {
     drivebase.zeroGyro();
     //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
     grabber.setDefaultCommand(grabber.passiveIntake());
-    intake.setDefaultCommand(intake.goToPos(intake.IDLE_POS, 0));
+    intake.setDefaultCommand(intake.goToPos(IntakePosition.Up));
   }
 
   /**
@@ -187,10 +189,41 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> {
           this.toggleDriveIsDefault();
         }));
-      // limelight control
-      driverController.a().whileTrue(drivebase.autoAlign());
-      driverController.rightBumper().onTrue(Commands.runOnce(drivebase::alignRight));
-      driverController.leftBumper().onTrue(Commands.runOnce(drivebase::alignLeft));
+      // limelight control DOESN'T WORK
+      //driverController.a().whileTrue(drivebase.autoAlign());
+      //driverController.rightBumper().onTrue(Commands.runOnce(drivebase::alignRight));
+      //driverController.leftBumper().onTrue(Commands.runOnce(drivebase::alignLeft));
+      
+      // ground intake control
+      driverController.leftTrigger().whileTrue(
+        Commands.run(() -> {
+          var pressedness = driverController.getLeftTriggerAxis();
+          if(pressedness > 0.2) {
+            intake.runIntake(0.7 * driverController.getLeftTriggerAxis());
+          } else {
+            intake.runIntake(0); // stops it
+          }
+        }, intake)
+      );
+      driverController.rightTrigger().whileTrue(
+        Commands.run(() -> {
+          var pressedness = driverController.getRightTriggerAxis();
+          if(pressedness > 0.2) {
+            intake.runIntake(-2.4 * driverController.getRightTriggerAxis());
+          } else {
+            intake.runIntake(0); // stops it
+          }
+        }, intake)
+      );
+      driverController.b().onTrue(
+        Commands.run(() -> intake.runIntake(0), intake)
+      );
+      driverController.rightBumper().onTrue(
+        intake.goToPos(IntakePosition.Down)
+      );
+      driverController.leftBumper().onTrue(
+        intake.goToPos(IntakePosition.Up)
+      );
 
       // operator
       // extake / intake
@@ -205,12 +238,13 @@ public class RobotContainer {
       // scoring
       // composing a deadline of commands into a funtion
       Function<ScoringGoal, Command> scoringCommand = (goal) -> {
-        return Commands.deadline(
-          Commands.parallel(
+        return Commands.sequence(
+          // make sure the arm swings out to not hit the shoe box
+          arm.goToScoringGoal(goal).withTimeout(0.3),
+          Commands.deadline(
             elevator.goToScoringGoal(goal),
-            arm.goToScoringGoal(goal)
-          ),
-          grabber.activeIntake()
+            arm.goToScoringGoal(goal).withTimeout(0.3)
+          )
         );
       };
       utilityController.y().onTrue(scoringCommand.apply(ScoringGoal.L4));
@@ -229,14 +263,6 @@ public class RobotContainer {
         }));
       // sheath (doesn't work)
       utilityController.povDown().onTrue(arm.sheath(grabber));
-
-      // ground intake
-      utilityController.rightTrigger(.5).whileTrue(
-        intake.goToPos(intake.INTAKE_POS, 2)
-      );
-      utilityController.leftTrigger(.5).whileTrue(
-        intake.goToPos(intake.TRANSFER_POS, -2)
-      );
 
       // set elevator zero position manually
       // I don't think this does anything
