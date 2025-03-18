@@ -28,6 +28,7 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GrabberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.IntakePosition;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
@@ -46,7 +47,7 @@ public class RobotContainer {
   public static final CommandXboxController driverController = new CommandXboxController(0);
   public static final CommandXboxController utilityController = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
-  final SwerveSubsystem drivebase = new SwerveSubsystem(
+  public final SwerveSubsystem drivebase = new SwerveSubsystem(
     new File(Filesystem.getDeployDirectory(), "swerve")
   );
 
@@ -69,6 +70,7 @@ public class RobotContainer {
   final GrabberSubsystem grabber = new GrabberSubsystem();
   final ArmSubsystem arm = new ArmSubsystem();
   final IntakeSubsystem intake = new IntakeSubsystem();
+  public final LimelightSubsystem limelight = new LimelightSubsystem(this);
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -197,22 +199,12 @@ public class RobotContainer {
       // ground intake control
       driverController.leftTrigger().whileTrue(
         Commands.run(() -> {
-          var pressedness = driverController.getLeftTriggerAxis();
-          if(pressedness > 0.2) {
-            intake.runIntake(0.7 * driverController.getLeftTriggerAxis());
-          } else {
-            intake.runIntake(0); // stops it
-          }
+          intake.runIntake(0.7 * driverController.getLeftTriggerAxis());
         }, intake)
       );
       driverController.rightTrigger().whileTrue(
         Commands.run(() -> {
-          var pressedness = driverController.getRightTriggerAxis();
-          if(pressedness > 0.2) {
-            intake.runIntake(-2.4 * driverController.getRightTriggerAxis());
-          } else {
-            intake.runIntake(0); // stops it
-          }
+          intake.runIntake(-2.4 * Math.min(driverController.getRightTriggerAxis() * 2, 1));
         }, intake)
       );
       driverController.b().onTrue(
@@ -224,6 +216,8 @@ public class RobotContainer {
       driverController.leftBumper().onTrue(
         intake.goToPos(IntakePosition.Up)
       );
+      // remove state, and stop commands
+      driverController.y().onTrue(intake.killSwitch());
 
       // operator
       // extake / intake
@@ -239,7 +233,7 @@ public class RobotContainer {
       // composing a deadline of commands into a funtion
       Function<ScoringGoal, Command> scoringCommand = (goal) -> {
         return Commands.sequence(
-          // make sure the arm swings out to not hit the shoe box
+          // make sure the arm swings out a little, as to not hit the shoe box
           arm.goToScoringGoal(goal).withTimeout(0.3),
           Commands.deadline(
             elevator.goToScoringGoal(goal),
@@ -261,8 +255,8 @@ public class RobotContainer {
         .onTrue(Commands.runOnce(() -> {
           arm.toggleManual();
         }));
-      // sheath (doesn't work)
-      utilityController.povDown().onTrue(arm.sheath(grabber));
+      // go down
+      utilityController.povDown().onTrue(elevator.goToScoringGoal(ScoringGoal.Intake));
 
       // set elevator zero position manually
       // I don't think this does anything

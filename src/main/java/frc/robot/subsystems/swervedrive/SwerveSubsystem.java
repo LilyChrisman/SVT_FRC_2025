@@ -71,10 +71,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
-  /**
-   * AprilTag field layout.
-   */
-  private final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+  
 
   private final String LIMELIGHT = "";
   private final IMUData imu = LimelightHelpers.getIMUData(getName());
@@ -98,7 +95,7 @@ public class SwerveSubsystem extends SubsystemBase {
       distToRobot -= 1.0; // probably meters
       //System.out.println("Distance: " + distToRobot);
 
-      Pose3d tagPosition = FIELD_LAYOUT.getTagPose(currentApril).get();
+      Pose3d tagPosition = Constants.FIELD_LAYOUT.getTagPose(currentApril).get();
 
       //Pose2d goalPos = getStupidDumbHardcodedAprilTagPosition(currentApril);
 

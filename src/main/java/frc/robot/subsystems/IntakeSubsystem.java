@@ -89,6 +89,18 @@ public class IntakeSubsystem extends SubsystemBase{
         }, this));
     }
 
+    public Command killSwitch() {
+        final VoltageOut zeroVolt = new VoltageOut(0);
+
+        return Commands.runOnce(() -> {
+            if(this.getCurrentCommand() != null) {
+                this.getCurrentCommand().cancel();
+            }
+            this.rotatorMotor.setControl(zeroVolt);
+            this.wheelMotor.setControl(zeroVolt);
+        });
+    }
+
     public void runIntake(double speed){
         final VoltageOut m_request = new VoltageOut(speed);
         wheelMotor.setControl(m_request);
