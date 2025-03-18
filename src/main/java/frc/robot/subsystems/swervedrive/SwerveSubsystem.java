@@ -7,6 +7,7 @@ package frc.robot.subsystems.swervedrive;
 import static edu.wpi.first.units.Units.Meter;
 import java.util.HashMap;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -72,10 +73,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
-  /**
-   * AprilTag field layout.
-   */
-  private final AprilTagFieldLayout FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+  
 
   private final String LIMELIGHT = "";
   private final IMUData LLimu = LimelightHelpers.getIMUData(getName());
@@ -85,67 +83,9 @@ public class SwerveSubsystem extends SubsystemBase {
     this.swerveDrive.setMaximumAllowableSpeeds(speed, speed);
   }
 
-  public Command autoAlign() {
-    double rotationalXOffset = LimelightHelpers.getTX(LIMELIGHT);
-    System.out.println("tx: " + rotationalXOffset);
-    int currentApril = (int)LimelightHelpers.getFiducialID(LIMELIGHT);
-    System.out.println("April id: " + currentApril);
+  
 
-    RawFiducial[] aprilTags = LimelightHelpers.getRawFiducials(LIMELIGHT);
-    for (var aprilTag : aprilTags) {
-      if(aprilTag.id != currentApril) continue;
-      
-      double distToRobot = aprilTag.distToRobot;
-      // make the distance a little further so it doesn't try to clip into the reef
-      distToRobot -= 1.0; // probably meters
-      System.out.println("Distance: " + distToRobot);
-
-      Pose3d tagPosition = FIELD_LAYOUT.getTagPose(currentApril).get();
-
-      //Pose2d goalPos = getStupidDumbHardcodedAprilTagPosition(currentApril);
-
-      System.out.println("Current: " + this.getPose());
-      System.out.println("Goal: " + tagPosition);
-
-      return this.driveToPose(tagPosition.toPose2d());
-
-      //this.drive(
-      //  new Translation2d(distToRobot, new Rotation2d(rotationalXOffset)),
-      //  Math.PI,
-      //  false
-      //);
-    }
-    System.out.println("Fallback branch");
-    return this.driveToPose(this.getPose()); // no-op
-  }
-
-  static final Pose2d[] stupidDumbHardcodedAprilTagPositions = new Pose2d[]{ // adjusted for where stuart should be after approaching them
-    new Pose2d(657.37, 25.80,  new Rotation2d(126)), // 1
-    new Pose2d(657.37, 291.20, new Rotation2d(234)), // 2
-    new Pose2d(455.15, 317.15, new Rotation2d(270)), // 3
-    new Pose2d(365.20, 241.64, new Rotation2d(0)),   // 4
-    new Pose2d(365.20, 75.39,  new Rotation2d(0)),   // 5
-    new Pose2d(530.49, 130.17, new Rotation2d(300)), // 6
-    new Pose2d(546.87, 158.50, new Rotation2d(0)),   // 7
-    new Pose2d(530.49, 186.83, new Rotation2d(60)),  // 8
-    new Pose2d(497.77, 186.83, new Rotation2d(120)), // 9
-    new Pose2d(481.39, 158.50, new Rotation2d(180)), // 10
-    new Pose2d(497.77, 130.17, new Rotation2d(240)), // 11
-    new Pose2d(33.51,  25.80,  new Rotation2d(54)),  // 12 
-    new Pose2d(33.51,  291.20, new Rotation2d(306)), // 13
-    new Pose2d(325.68, 241.64, new Rotation2d(180)), // 14 
-    new Pose2d(325.68, 75.39,  new Rotation2d(180)), // 15
-    new Pose2d(235.73, -0.15,    new Rotation2d(90)),  // 16
-    new Pose2d(160.39, 130.17, new Rotation2d(240)), // 17
-    new Pose2d(144.00, 158.50, new Rotation2d(180)), // 18
-    new Pose2d(160.39, 186.83, new Rotation2d(120)), // 19
-    new Pose2d(193.10, 186.83, new Rotation2d(60)),  // 20
-    new Pose2d(209.49, 158.50, new Rotation2d(0)),   // 21
-    new Pose2d(193.10, 130.17, new Rotation2d(300)), // 22
-  };
-  static Pose2d getStupidDumbHardcodedAprilTagPosition(int id) {
-    return stupidDumbHardcodedAprilTagPositions[id-1];
-  }
+  
 
   public Command alignRight() {
     return run(() -> this.drive(new ChassisSpeeds(0, -0.1, 0)))

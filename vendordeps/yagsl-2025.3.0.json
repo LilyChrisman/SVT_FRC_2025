@@ -17,12 +17,6 @@
   ],
   "requires": [
     {
-      "uuid": "3f48eb8c-50fe-43a6-9cb7-44c86353c4cb",
-      "errorMessage": "REVLib is required!",
-      "offlineFileName": "REVLib-2025.0.0.json",
-      "onlineUrl": "https://software-metadata.revrobotics.com/REVLib-2025.json"
-    },
-    {
       "uuid": "151ecca8-670b-4026-8160-cdd2679ef2bd",
       "errorMessage": "ReduxLib is required!",
       "offlineFileName": "ReduxLib-2025.0.0.json",

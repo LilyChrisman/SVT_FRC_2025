@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -104,6 +106,9 @@ public class Robot extends TimedRobot
   public void autonomousInit()
   {
     m_robotContainer.setMotorBrake(true);
+    m_robotContainer.intake.rotatorMotor.setNeutralMode(NeutralModeValue.Brake);
+    m_robotContainer.intake.wheelMotor.setNeutralMode(NeutralModeValue.Brake);
+    
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -134,6 +139,9 @@ public class Robot extends TimedRobot
   public void teleopInit()
   {
     m_robotContainer.setMotorBrake(true);
+    m_robotContainer.intake.rotatorMotor.setNeutralMode(NeutralModeValue.Brake);
+    m_robotContainer.intake.wheelMotor.setNeutralMode(NeutralModeValue.Brake);
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
