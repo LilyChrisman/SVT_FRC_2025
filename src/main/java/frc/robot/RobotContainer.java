@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -44,8 +45,8 @@ import swervelib.SwerveInputStream;
  */
 public class RobotContainer {
   // Initializing our two controllers
-  public static final CommandXboxController driverController = new CommandXboxController(0);
-  public static final CommandXboxController utilityController = new CommandXboxController(1);
+  public static final CommandPS4Controller driverController = new CommandPS4Controller(0);
+  public static final CommandPS4Controller utilityController = new CommandPS4Controller(1);
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem drivebase = new SwerveSubsystem(
     new File(Filesystem.getDeployDirectory(), "swerve")
@@ -77,11 +78,11 @@ public class RobotContainer {
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
     drivebase.getSwerveDrive(),
-    () -> Math.signum(driverController.getLeftY()) * Math.abs(Math.pow(driverController.getLeftY(), 2)) * DRIVE_CONTROLLER_SLOW_DOWN,
-    () -> Math.signum(driverController.getLeftX()) * Math.abs(Math.pow(driverController.getLeftX(), 2)) * DRIVE_CONTROLLER_SLOW_DOWN
+    () -> driverController.getLeftY(),
+    () -> driverController.getLeftX()
   ).withControllerRotationAxis(driverController::getRightX)
   .deadband(OperatorConstants.DEADBAND)
-  .scaleTranslation(0.8)
+  .scaleTranslation(1)
   .allianceRelativeControl(true);
 
   /**
@@ -89,8 +90,8 @@ public class RobotContainer {
    */
   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
     .withControllerHeadingAxis(
-      () -> Math.signum(driverController.getRightX()) * Math.abs(Math.pow(driverController.getRightX(), 2)) * DRIVE_CONTROLLER_SLOW_DOWN,
-      () -> Math.signum(driverController.getRightY()) * Math.abs(Math.pow(driverController.getRightY(), 2)) * DRIVE_CONTROLLER_SLOW_DOWN
+      () -> driverController.getRightX(),
+      () -> driverController.getRightY()
     ).headingWhile(true);
 
   /**
@@ -168,26 +169,19 @@ public class RobotContainer {
     }
 
     if (Robot.isSimulation()) {
-      driverController.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
+      driverController.options().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
       driverController.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
 
     } // idk if else can be here or not, it wasn't when I got here
     if (DriverStation.isTest()) {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
-
-      driverController.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverController.y().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
-      driverController.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverController.back().whileTrue(drivebase.centerModulesCommand());
-      driverController.leftBumper().onTrue(Commands.none());
-      driverController.rightBumper().onTrue(Commands.none());
+      // unused
     } else /* teleop */ {
       // TODO make operator control do forced power intake during scoring position changes
       // All controller inputs for main teleop mode
       // driver
-      driverController.start()
+      driverController.options()
         .onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverController.leftStick()
+      driverController.L3()
         .onTrue(Commands.runOnce(() -> {
           this.toggleDriveIsDefault();
         }));
@@ -197,35 +191,35 @@ public class RobotContainer {
       //driverController.leftBumper().onTrue(Commands.runOnce(drivebase::alignLeft));
       
       // ground intake control
-      driverController.leftTrigger().whileTrue(
+      driverController.L2().whileTrue(
         Commands.run(() -> {
-          intake.runIntake(0.7 * driverController.getLeftTriggerAxis());
+          intake.runIntake(0.7 * driverController.getL2Axis());
         }, intake)
       );
-      driverController.rightTrigger().whileTrue(
+      driverController.R2().whileTrue(
         Commands.run(() -> {
-          intake.runIntake(-2.4 * Math.min(driverController.getRightTriggerAxis() * 2, 1));
+          intake.runIntake(-2.4 * Math.min(driverController.getR2Axis() * 2, 1));
         }, intake)
       );
-      driverController.b().onTrue(
+      driverController.circle().onTrue(
         Commands.run(() -> intake.runIntake(0), intake)
       );
-      driverController.rightBumper().onTrue(
+      driverController.R1().onTrue(
         intake.goToPos(IntakePosition.Down)
       );
-      driverController.leftBumper().onTrue(
+      driverController.L1().onTrue(
         intake.goToPos(IntakePosition.Up)
       );
       // remove state, and stop commands
-      driverController.y().onTrue(intake.killSwitch());
+      driverController.triangle().onTrue(intake.killSwitch());
 
       // operator
       // extake / intake
-      utilityController.leftBumper().whileTrue(grabber.release());
-      utilityController.rightBumper().onTrue(elevator.runIntake(grabber));
+      utilityController.L1().whileTrue(grabber.release());
+      utilityController.R1().onTrue(elevator.runIntake(grabber));
       
       // elevator/arm preset positions
-      utilityController.a().onTrue(Commands.deadline(
+      utilityController.cross().onTrue(Commands.deadline(
         elevator.goToScoringGoal(ScoringGoal.PrepareIntake),
         arm.goToScoringGoal(ScoringGoal.PrepareIntake)
       ));
@@ -241,9 +235,9 @@ public class RobotContainer {
           )
         );
       };
-      utilityController.y().onTrue(scoringCommand.apply(ScoringGoal.L4));
-      utilityController.x().onTrue(scoringCommand.apply(ScoringGoal.L3));
-      utilityController.b().onTrue(scoringCommand.apply(ScoringGoal.L2));
+      utilityController.triangle().onTrue(scoringCommand.apply(ScoringGoal.L4));
+      utilityController.cross().onTrue(scoringCommand.apply(ScoringGoal.L3));
+      utilityController.circle().onTrue(scoringCommand.apply(ScoringGoal.L2));
 
       // manual override toggle for controlling the elevator
       utilityController.povLeft()
@@ -260,7 +254,7 @@ public class RobotContainer {
 
       // set elevator zero position manually
       // I don't think this does anything
-      utilityController.start()
+      utilityController.options()
         .onTrue(Commands.runOnce(elevator::zeroPosition));
     }
   }
