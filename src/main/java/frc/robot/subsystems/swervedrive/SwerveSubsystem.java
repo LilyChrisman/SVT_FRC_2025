@@ -168,6 +168,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void periodic() {
     LimelightHelpers.printPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT));
     this.swerveDrive.updateOdometry();
+    updateVisionOdometry();
   }
 
   @Override
