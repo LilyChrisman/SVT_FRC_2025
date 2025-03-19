@@ -46,7 +46,7 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
   // Initializing our two controllers
   public static final CommandPS4Controller driverController = new CommandPS4Controller(0);
-  public static final CommandPS4Controller utilityController = new CommandPS4Controller(1);
+  public static final CommandXboxController utilityController = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem drivebase = new SwerveSubsystem(
     new File(Filesystem.getDeployDirectory(), "swerve")
@@ -174,7 +174,7 @@ public class RobotContainer {
 
     } // idk if else can be here or not, it wasn't when I got here
     if (DriverStation.isTest()) {
-      // unused
+
     } else /* teleop */ {
       // TODO make operator control do forced power intake during scoring position changes
       // All controller inputs for main teleop mode
@@ -193,12 +193,12 @@ public class RobotContainer {
       // ground intake control
       driverController.L2().whileTrue(
         Commands.run(() -> {
-          intake.runIntake(0.7 * driverController.getL2Axis());
+          intake.runIntake(0.7);
         }, intake)
       );
       driverController.R2().whileTrue(
         Commands.run(() -> {
-          intake.runIntake(-2.4 * Math.min(driverController.getR2Axis() * 2, 1));
+          intake.runIntake(-2.4);
         }, intake)
       );
       driverController.circle().onTrue(
@@ -215,11 +215,11 @@ public class RobotContainer {
 
       // operator
       // extake / intake
-      utilityController.L1().whileTrue(grabber.release());
-      utilityController.R1().onTrue(elevator.runIntake(grabber));
+      utilityController.leftBumper().whileTrue(grabber.release());
+      utilityController.rightBumper().onTrue(elevator.runIntake(grabber));
       
       // elevator/arm preset positions
-      utilityController.cross().onTrue(Commands.deadline(
+      utilityController.a().onTrue(Commands.deadline(
         elevator.goToScoringGoal(ScoringGoal.PrepareIntake),
         arm.goToScoringGoal(ScoringGoal.PrepareIntake)
       ));
@@ -235,9 +235,9 @@ public class RobotContainer {
           )
         );
       };
-      utilityController.triangle().onTrue(scoringCommand.apply(ScoringGoal.L4));
-      utilityController.cross().onTrue(scoringCommand.apply(ScoringGoal.L3));
-      utilityController.circle().onTrue(scoringCommand.apply(ScoringGoal.L2));
+      utilityController.y().onTrue(scoringCommand.apply(ScoringGoal.L4));
+      utilityController.x().onTrue(scoringCommand.apply(ScoringGoal.L3));
+      utilityController.b().onTrue(scoringCommand.apply(ScoringGoal.L2));
 
       // manual override toggle for controlling the elevator
       utilityController.povLeft()
@@ -254,7 +254,7 @@ public class RobotContainer {
 
       // set elevator zero position manually
       // I don't think this does anything
-      utilityController.options()
+      utilityController.start()
         .onTrue(Commands.runOnce(elevator::zeroPosition));
     }
   }
