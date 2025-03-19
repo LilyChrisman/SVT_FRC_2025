@@ -86,6 +86,7 @@ public class Robot extends TimedRobot
     m_robotContainer.setMotorBrake(true);
     disabledTimer.reset();
     disabledTimer.start();
+    LimelightHelpers.SetIMUMode(null, 1);
   }
 
   @Override
@@ -115,6 +116,7 @@ public class Robot extends TimedRobot
     {
       m_autonomousCommand.schedule();
     }
+    LimelightHelpers.SetIMUMode(null, 2);
   }
 
   /**

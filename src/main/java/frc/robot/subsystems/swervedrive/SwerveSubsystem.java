@@ -45,6 +45,7 @@ import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.IMUData;
 import frc.robot.LimelightHelpers.RawFiducial;
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +76,8 @@ public class SwerveSubsystem extends SubsystemBase {
   
 
   private final String LIMELIGHT = "";
-  private final IMUData imu = LimelightHelpers.getIMUData(getName());
+  private final IMUData LLimu = LimelightHelpers.getIMUData(getName());
+  private final Pigeon2 navx = new Pigeon2(1);
 
   public void setMaxSpeed(double speed) {
     this.swerveDrive.setMaximumAllowableSpeeds(speed, speed);
@@ -166,6 +168,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void periodic() {
     LimelightHelpers.printPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT));
     this.swerveDrive.updateOdometry();
+    updateVisionOdometry();
   }
 
   @Override
@@ -686,7 +689,7 @@ public class SwerveSubsystem extends SubsystemBase {
     boolean rejectUpdate = false;
     LimelightHelpers.SetRobotOrientation("limelight",this.swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT);
-    if(Math.abs(imu.accelX) > 360){ // if our angular velocity is greater than 360 degrees per second, ignore vision updates
+    if(Math.abs(navx.getAngularVelocityZWorld().getValueAsDouble()) > 360){ // if our angular velocity is greater than 360 degrees per second, ignore vision updates
       rejectUpdate = true;
     }
     if(limelightMeasurement.tagCount == 0){
