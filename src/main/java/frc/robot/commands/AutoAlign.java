@@ -17,18 +17,18 @@ public class AutoAlign extends Command{
     public final double DONT_SEE_TAG_WAIT_TIME = 3;
     public final double POSE_VALIDATION_TIME = 0.3;
 
-    public final double X_REEF_ALIGNMENT_P = 0.001;
-    public final double Y_REEF_ALIGNMENT_P = 0.001;
-    public final double ROT_REEF_ALIGNMENT_P = 0.001;
+    public final double X_REEF_ALIGNMENT_P = 0.1;
+    public final double Y_REEF_ALIGNMENT_P = 0.1;
+    public final double ROT_REEF_ALIGNMENT_P = 0.1;
 
     public final double ROT_SETPOINT_REEF_ALIGNMENT = 0;
-    public final double ROT_TOLERANCE_REEF_ALIGNMENT = 5;
+    public final double ROT_TOLERANCE_REEF_ALIGNMENT = 3;
 
-    public final double X_SETPOINT_REEF_ALIGNMENT = 3;
-    public final double X_TOLERANCE_REEF_ALIGNMENT = 5;
+    public final double X_SETPOINT_REEF_ALIGNMENT = 7;
+    public final double X_TOLERANCE_REEF_ALIGNMENT = 2;
 
-    public final double Y_SETPOINT_REEF_ALIGNMENT = 3;
-    public final double Y_TOLERANCE_REEF_ALIGNMENT = 5;
+    public final double Y_SETPOINT_REEF_ALIGNMENT = 7;
+    public final double Y_TOLERANCE_REEF_ALIGNMENT = 2;
 
     public AutoAlign(boolean isRightSCore, SwerveSubsystem drivebase){
         xController = new PIDController(X_REEF_ALIGNMENT_P, 0, 0);
@@ -51,7 +51,7 @@ public class AutoAlign extends Command{
         xController.setSetpoint(X_SETPOINT_REEF_ALIGNMENT);
         xController.setTolerance(X_TOLERANCE_REEF_ALIGNMENT);
 
-        yController.setSetpoint(Y_SETPOINT_REEF_ALIGNMENT);
+        yController.setSetpoint(isRightSCore ? Y_SETPOINT_REEF_ALIGNMENT : -Y_SETPOINT_REEF_ALIGNMENT);
         yController.setTolerance(Y_TOLERANCE_REEF_ALIGNMENT);
 
         if(LimelightHelpers.getTV("")){
@@ -70,17 +70,23 @@ public class AutoAlign extends Command{
             double rotValue = -rotController.calculate(positions[4]);
 
             drivebase.drive(
-                new Translation2d(yController.getError() < Y_TOLERANCE_REEF_ALIGNMENT ? xSpeed : 0, ySpeed)
-                , rotValue, false);
+                new Translation2d(xSpeed, ySpeed),
+                rotValue,
+                false
+            );
 
-                if(!rotController.atSetpoint() ||
-                !yController.atSetpoint() ||
-                !xController.atSetpoint()){
-                    stopTimer.reset();
-                } else {
-                    drivebase.drive(new Translation2d(), 0, false);
-                }
+            if(!rotController.atSetpoint() ||
+            !yController.atSetpoint() ||
+            !xController.atSetpoint()){
+                stopTimer.reset();
+            } else {
+                drivebase.drive(new Translation2d(), 0, false);
+            }
         }
+    }
+
+    public void end(){
+        drivebase.drive(new Translation2d(), 0, false);
     }
 
     public boolean isFinished(){

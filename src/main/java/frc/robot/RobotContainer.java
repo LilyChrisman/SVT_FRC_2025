@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoAlign;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GrabberSubsystem;
@@ -48,8 +49,8 @@ public class RobotContainer {
   final double DRIVE_CONTROLLER_MOD = 0.6;
   boolean driveIsDefaultSpeed = true;
 
-  void toggleDriveIsDefault() {
-    this.driveIsDefaultSpeed = !this.driveIsDefaultSpeed;
+  void setDriveIsSlow(boolean isSlow) {
+    this.driveIsDefaultSpeed = !isSlow;
     this.drivebase.setMaxSpeed(
       this.driveIsDefaultSpeed ? Constants.MAX_SPEED : Constants.SLOWED_SPEED
     );
@@ -142,9 +143,7 @@ public class RobotContainer {
    * {@link CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
    * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
    */
-  private void configureBindings()
-  {
-
+  private void configureBindings() {
     Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
     Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
     Command driveRobotOrientedAngularVelocity  = drivebase.driveFieldOriented(driveRobotOriented);
@@ -174,7 +173,7 @@ public class RobotContainer {
         .onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverController.L3()
         .onTrue(Commands.runOnce(() -> {
-          this.toggleDriveIsDefault();
+          this.setDriveIsSlow(true);
         }));
       // limelight control DOESN'T WORK
       //driverController.a().whileTrue(drivebase.autoAlign());
@@ -187,13 +186,19 @@ public class RobotContainer {
           intake.runIntake(0.7);
         }, intake)
       );
-      driverController.R2().whileTrue(
+      // using [] as a pointer so it can enter the lambda below
+      final int[] currentIntakeSpeed = new int[]{0};
+      driverController.R2().onChange(
         Commands.run(() -> {
-          intake.runIntake(-2.4);
+          currentIntakeSpeed[0] = currentIntakeSpeed[0] == 0 ? -5 : 0;
+          intake.runIntake((double)currentIntakeSpeed[0]);
         }, intake)
       );
       driverController.circle().onTrue(
-        Commands.run(() -> intake.runIntake(0), intake)
+        Commands.run(() -> {
+          this.setDriveIsSlow(false);
+          intake.runIntake(0);
+        }, intake)
       );
       driverController.R1().onTrue(
         intake.goToPos(IntakePosition.Down)
@@ -203,6 +208,9 @@ public class RobotContainer {
       );
       // remove state, and stop commands
       driverController.triangle().onTrue(intake.killSwitch());
+      driverController.povRight().onTrue(new AutoAlign(true, drivebase));
+      driverController.povLeft().onTrue(new AutoAlign(false, drivebase));   
+
 
       // operator
       // extake / intake
