@@ -186,12 +186,15 @@ public class RobotContainer {
           intake.runIntake(0.7);
         }, intake)
       );
-      // using [] as a pointer so it can enter the lambda below
-      final int[] currentIntakeSpeed = new int[]{0};
-      driverController.R2().onChange(
+      driverController.R2().onTrue(
         Commands.run(() -> {
-          currentIntakeSpeed[0] = currentIntakeSpeed[0] == 0 ? -5 : 0;
-          intake.runIntake((double)currentIntakeSpeed[0]);
+          intake.runIntake(-2.8);
+        }, intake)
+      );
+      driverController.R2().onFalse(
+        Commands.run(() -> {
+          System.out.println("Does it work?");
+          intake.runIntake(0);
         }, intake)
       );
       driverController.circle().onTrue(
