@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -68,6 +69,10 @@ public class AutoAlign extends Command{
             double xSpeed = xController.calculate(positions[2]);
             double ySpeed = -yController.calculate(positions[0]);
             double rotValue = -rotController.calculate(positions[4]);
+
+            SmartDashboard.putNumber("xSpeed: ", xSpeed);
+            SmartDashboard.putNumber("ySpeed: ", ySpeed);
+            SmartDashboard.putNumber("rotSpeed: ", rotValue);
 
             drivebase.drive(
                 new Translation2d(xSpeed, ySpeed),
