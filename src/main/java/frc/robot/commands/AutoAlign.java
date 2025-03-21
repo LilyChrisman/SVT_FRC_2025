@@ -18,18 +18,18 @@ public class AutoAlign extends Command{
     public final double DONT_SEE_TAG_WAIT_TIME = 3;
     public final double POSE_VALIDATION_TIME = 0.3;
 
-    public final double X_REEF_ALIGNMENT_P = 0.1;
-    public final double Y_REEF_ALIGNMENT_P = 0.1;
-    public final double ROT_REEF_ALIGNMENT_P = 0.1;
+    public final double X_REEF_ALIGNMENT_P = 0.3;
+    public final double Y_REEF_ALIGNMENT_P = 0.3;
+    public final double ROT_REEF_ALIGNMENT_P = 0.01;
 
     public final double ROT_SETPOINT_REEF_ALIGNMENT = 0;
     public final double ROT_TOLERANCE_REEF_ALIGNMENT = 3;
 
-    public final double X_SETPOINT_REEF_ALIGNMENT = 7;
-    public final double X_TOLERANCE_REEF_ALIGNMENT = 2;
+    public final double X_SETPOINT_REEF_ALIGNMENT = .8;
+    public final double X_TOLERANCE_REEF_ALIGNMENT = .3;
 
-    public final double Y_SETPOINT_REEF_ALIGNMENT = 7;
-    public final double Y_TOLERANCE_REEF_ALIGNMENT = 2;
+    public final double Y_SETPOINT_REEF_ALIGNMENT = 0;
+    public final double Y_TOLERANCE_REEF_ALIGNMENT = .3;
 
     public AutoAlign(boolean isRightSCore, SwerveSubsystem drivebase){
         xController = new PIDController(X_REEF_ALIGNMENT_P, 0, 0);
@@ -73,6 +73,10 @@ public class AutoAlign extends Command{
             SmartDashboard.putNumber("xSpeed: ", xSpeed);
             SmartDashboard.putNumber("ySpeed: ", ySpeed);
             SmartDashboard.putNumber("rotSpeed: ", rotValue);
+            SmartDashboard.putNumber("xTarget", X_SETPOINT_REEF_ALIGNMENT);
+            SmartDashboard.putNumber("yTarget", Y_SETPOINT_REEF_ALIGNMENT);
+            SmartDashboard.putNumber(
+                "RotTarget", ROT_SETPOINT_REEF_ALIGNMENT);
 
             drivebase.drive(
                 new Translation2d(xSpeed, ySpeed),
