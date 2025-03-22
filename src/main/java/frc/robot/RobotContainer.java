@@ -162,23 +162,13 @@ public class RobotContainer {
       driverController.options().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
       driverController.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
 
-    } // idk if else can be here or not, it wasn't when I got here
-    if (DriverStation.isTest()) {
+    }
 
-    } else /* teleop */ {
-      // TODO make operator control do forced power intake during scoring position changes
+    if(DriverStation.isTest()) { // child safety mode
       // All controller inputs for main teleop mode
       // driver
       driverController.options()
         .onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverController.L3()
-        .onTrue(Commands.runOnce(() -> {
-          this.setDriveIsSlow(true);
-        }));
-      // limelight control DOESN'T WORK
-      //driverController.a().whileTrue(drivebase.autoAlign());
-      //driverController.rightBumper().onTrue(Commands.runOnce(drivebase::alignRight));
-      //driverController.leftBumper().onTrue(Commands.runOnce(drivebase::alignLeft));
       
       // ground intake control
       driverController.L2().whileTrue(
@@ -193,7 +183,6 @@ public class RobotContainer {
       );
       driverController.R2().onFalse(
         Commands.run(() -> {
-          System.out.println("Does it work?");
           intake.runIntake(0);
         }, intake)
       );
@@ -206,14 +195,11 @@ public class RobotContainer {
       driverController.R1().onTrue(
         intake.goToPos(IntakePosition.Down)
       );
-      driverController.L1().onTrue(
-        intake.goToPos(IntakePosition.Up)
-      );
-      // remove state, and stop commands
+      // reset state, and stop commands
       driverController.triangle().onTrue(intake.killSwitch());
+
       driverController.povRight().onTrue(new AutoAlign(true, drivebase));
       driverController.povLeft().onTrue(new AutoAlign(false, drivebase));   
-
 
       // operator
       // extake / intake
@@ -243,14 +229,93 @@ public class RobotContainer {
 
       // manual override toggle for controlling the elevator
       utilityController.povLeft()
-        .onTrue(Commands.runOnce(() -> {
-          elevator.toggleManual();
-        }));
+        .onTrue(Commands.runOnce(elevator::toggleManual));
       // manual override toggle for controlling the arm
       utilityController.povRight()
+        .onTrue(Commands.runOnce(arm::toggleManual));
+      // go down
+      utilityController.povDown().onTrue(elevator.goToScoringGoal(ScoringGoal.Intake));
+
+      // set elevator zero position manually
+      // I don't think this does anything
+      utilityController.start()
+        .onTrue(Commands.runOnce(elevator::zeroPosition));
+    } else if(DriverStation.isTeleop()) {
+      // All controller inputs for main teleop mode
+      // driver
+      driverController.options()
+        .onTrue((Commands.runOnce(drivebase::zeroGyro)));
+      driverController.L3()
         .onTrue(Commands.runOnce(() -> {
-          arm.toggleManual();
+          this.setDriveIsSlow(true);
         }));
+      
+      // ground intake control
+      driverController.L2().whileTrue(
+        Commands.run(() -> {
+          intake.runIntake(0.7);
+        }, intake)
+      );
+      driverController.R2().onTrue(
+        Commands.run(() -> {
+          intake.runIntake(-2.8);
+        }, intake)
+      );
+      driverController.R2().onFalse(
+        Commands.run(() -> {
+          intake.runIntake(0);
+        }, intake)
+      );
+      driverController.circle().onTrue(
+        Commands.run(() -> {
+          this.setDriveIsSlow(false);
+          intake.runIntake(0);
+        }, intake)
+      );
+      driverController.R1().onTrue(
+        intake.goToPos(IntakePosition.Down)
+      );
+      driverController.L1().onTrue(
+        intake.goToPos(IntakePosition.Up)
+      );
+      // reset state, and stop commands
+      driverController.triangle().onTrue(intake.killSwitch());
+
+      driverController.povRight().onTrue(new AutoAlign(true, drivebase));
+      driverController.povLeft().onTrue(new AutoAlign(false, drivebase));   
+
+      // operator
+      // extake / intake
+      utilityController.leftBumper().whileTrue(grabber.release());
+      utilityController.rightBumper().onTrue(elevator.runIntake(grabber));
+      
+      // elevator/arm preset positions
+      utilityController.a().onTrue(Commands.deadline(
+        elevator.goToScoringGoal(ScoringGoal.PrepareIntake),
+        arm.goToScoringGoal(ScoringGoal.PrepareIntake)
+      ));
+      // scoring
+      // composing a deadline of commands into a funtion
+      Function<ScoringGoal, Command> scoringCommand = (goal) -> {
+        return Commands.sequence(
+          // make sure the arm swings out a little, as to not hit the shoe box
+          arm.goToScoringGoal(goal).withTimeout(0.3),
+          Commands.deadline(
+            elevator.goToScoringGoal(goal),
+            arm.goToScoringGoal(goal).withTimeout(0.3)
+          )
+        );
+      };
+      utilityController.y().onTrue(scoringCommand.apply(ScoringGoal.L4));
+      utilityController.x().onTrue(scoringCommand.apply(ScoringGoal.L3));
+      utilityController.b().onTrue(scoringCommand.apply(ScoringGoal.L2));
+
+      // manual override toggle for controlling the elevator
+      utilityController.povLeft()
+        .onTrue(Commands.runOnce(elevator::toggleManual));
+      // manual override toggle for controlling the arm
+      utilityController.povRight()
+        .onTrue(Commands.runOnce(arm::toggleManual));
       // go down
       utilityController.povDown().onTrue(elevator.goToScoringGoal(ScoringGoal.Intake));
 
@@ -269,8 +334,7 @@ public class RobotContainer {
 
   long startingTime = 0;
   long runningTime = 2000;
-  public Command getAutonomousCommand()
-  {
+  public Command getAutonomousCommand() {
     // drive
     return Commands.run(
       () -> drivebase.drive(new ChassisSpeeds(-1, 0, 0)),
@@ -282,8 +346,7 @@ public class RobotContainer {
     //SmartDashboard.putData(auto_chooser);
   }
 
-  public void setMotorBrake(boolean brake)
-  {
+  public void setMotorBrake(boolean brake) {
     drivebase.setMotorBrake(brake);
   }
 }

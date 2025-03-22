@@ -141,6 +141,7 @@ public class Robot extends TimedRobot
     m_robotContainer.setMotorBrake(true);
     m_robotContainer.intake.rotatorMotor.setNeutralMode(NeutralModeValue.Brake);
     m_robotContainer.intake.wheelMotor.setNeutralMode(NeutralModeValue.Brake);
+    this.m_robotContainer.setDriveIsSlow(false);
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
@@ -168,6 +169,8 @@ public class Robot extends TimedRobot
   {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+
+    this.m_robotContainer.setDriveIsSlow(true);
   }
 
   /**
