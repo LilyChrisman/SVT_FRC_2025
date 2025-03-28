@@ -18,8 +18,7 @@ public class AutoAlign extends Command{
     public final double DONT_SEE_TAG_WAIT_TIME = 3;
     public final double POSE_VALIDATION_TIME = 0.3;
 
-    public final double X_REEF_ALIGNMENT_P = 0.3;
-    public final double Y_REEF_ALIGNMENT_P = 0.3;
+    public final double REEF_ALIGNMENT_P = 2.0;
     public final double ROT_REEF_ALIGNMENT_P = 0.01;
 
     public final double ROT_SETPOINT_REEF_ALIGNMENT = 0;
@@ -32,8 +31,8 @@ public class AutoAlign extends Command{
     public final double Y_TOLERANCE_REEF_ALIGNMENT = .3;
 
     public AutoAlign(boolean isRightSCore, SwerveSubsystem drivebase){
-        xController = new PIDController(X_REEF_ALIGNMENT_P, 0, 0);
-        yController = new PIDController(Y_REEF_ALIGNMENT_P, 0, 0);
+        xController = new PIDController(REEF_ALIGNMENT_P, 0, 0);
+        yController = new PIDController(REEF_ALIGNMENT_P, 0, 0);
         rotController = new PIDController(ROT_REEF_ALIGNMENT_P, 0, 0);
         this.isRightSCore = isRightSCore;
         this.drivebase = drivebase;
@@ -52,7 +51,7 @@ public class AutoAlign extends Command{
         xController.setSetpoint(X_SETPOINT_REEF_ALIGNMENT);
         xController.setTolerance(X_TOLERANCE_REEF_ALIGNMENT);
 
-        yController.setSetpoint(isRightSCore ? Y_SETPOINT_REEF_ALIGNMENT : -Y_SETPOINT_REEF_ALIGNMENT);
+        yController.setSetpoint(isRightSCore ? Y_SETPOINT_REEF_ALIGNMENT*1.8 : -Y_SETPOINT_REEF_ALIGNMENT*2.6);
         yController.setTolerance(Y_TOLERANCE_REEF_ALIGNMENT);
 
         if(LimelightHelpers.getTV("")){
@@ -70,6 +69,11 @@ public class AutoAlign extends Command{
             double ySpeed = -yController.calculate(positions[0]);
             double rotValue = -rotController.calculate(positions[4]);
 
+            if (isFinished()) {
+                drivebase.drive(new Translation2d(), rotValue, false);
+                return;
+            }
+
             SmartDashboard.putNumber("xSpeed: ", xSpeed);
             SmartDashboard.putNumber("ySpeed: ", ySpeed);
             SmartDashboard.putNumber("rotSpeed: ", rotValue);
@@ -80,7 +84,7 @@ public class AutoAlign extends Command{
 
             drivebase.drive(
                 new Translation2d(xSpeed, ySpeed),
-                rotValue,
+                0.0,
                 false
             );
 

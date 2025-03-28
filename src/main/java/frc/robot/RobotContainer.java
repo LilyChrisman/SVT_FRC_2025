@@ -198,8 +198,8 @@ public class RobotContainer {
       // reset state, and stop commands
       driverController.triangle().onTrue(intake.killSwitch());
 
-      driverController.povRight().onTrue(new AutoAlign(true, drivebase));
-      driverController.povLeft().onTrue(new AutoAlign(false, drivebase));   
+      driverController.povRight().whileTrue(new AutoAlign(true, drivebase));
+      driverController.povLeft().whileTrue(new AutoAlign(false, drivebase));   
 
       // operator
       // extake / intake
