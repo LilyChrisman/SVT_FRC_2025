@@ -5,13 +5,32 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "New Path"
+            "name": "grabCoral"
           }
         },
         {
-          "type": "parallel",
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "PrepareIntake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Score 3 from Start"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
           "data": {
             "commands": [
               {
@@ -25,6 +44,12 @@
                 "data": {
                   "name": "ArmScoreHigh"
                 }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
               }
             ]
           }
@@ -32,7 +57,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New New Path"
+            "pathName": "Score 3 from Start Short"
           }
         },
         {

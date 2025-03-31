@@ -15,9 +15,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -33,7 +31,6 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.IntakePosition;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import java.io.File;
 import java.util.function.Function;
@@ -131,16 +128,13 @@ public class RobotContainer {
     //run the command associated with it
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
     NamedCommands.registerCommand("grabCoral", grabber.passiveIntake());
-    NamedCommands.registerCommand("grabCoral", grabber.passiveIntake());
     NamedCommands.registerCommand("releaseCoral", grabber.release());
     NamedCommands.registerCommand("LiftScoreHigh", elevator.goToScoringGoal(ScoringGoal.L4));
     NamedCommands.registerCommand("LiftPickupCoral", elevator.goToScoringGoal(ScoringGoal.Intake));
     NamedCommands.registerCommand("PrepareIntake", elevator.goToScoringGoal(ScoringGoal.PrepareIntake));
-    NamedCommands.registerCommand("PrepareIntake", elevator.goToScoringGoal(ScoringGoal.PrepareIntake));
     NamedCommands.registerCommand("ArmScoreHigh", arm.goToScoringGoal(ScoringGoal.L4));
     NamedCommands.registerCommand("ArmPickupCoral", arm.goToScoringGoal(ScoringGoal.Intake));
     NamedCommands.registerCommand("ArmScoreLow", arm.goToScoringGoal(ScoringGoal.L1));
-    NamedCommands.registerCommand("Sheath", arm.sheath());
 
     // autoChooser = AutoBuilder.buildAutoChooser();
     // SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -153,8 +147,6 @@ public class RobotContainer {
     field = new Field2d();
     SmartDashboard.putData("Field: ", field);
 
-    drivebase.field = field;
-
     PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
       field.getObject("target pose").setPose(pose);
     });
@@ -162,6 +154,7 @@ public class RobotContainer {
     PathPlannerLogging.setLogActivePathCallback((poses) -> {
       field.getObject("path").setPoses(poses);
     });
+
   }
 
   /**
@@ -226,7 +219,7 @@ public class RobotContainer {
       );
       driverController.R2().onTrue(
         Commands.run(() -> {
-          intake.runIntake(-3.0);
+          intake.runIntake(-2.0);
         }, intake)
       );
       driverController.R2().onFalse(
@@ -257,7 +250,6 @@ public class RobotContainer {
       utilityController.leftBumper().whileTrue(grabber.release());
       utilityController.rightBumper().onTrue(elevator.runIntake(grabber));
       utilityController.rightTrigger().whileTrue(grabber.activeIntake(-4));
-      utilityController.povUp().onTrue(arm.sheath());
       
       // elevator/arm preset positions
       utilityController.a().onTrue(Commands.deadline(
