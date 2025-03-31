@@ -5,13 +5,18 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.PathPlannerLogging;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -26,6 +31,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.IntakePosition;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import java.io.File;
 import java.util.function.Function;
 import swervelib.SwerveInputStream;
@@ -48,6 +54,8 @@ public class RobotContainer {
 
   final double DRIVE_CONTROLLER_MOD = 0.6;
   boolean driveIsDefaultSpeed = true;
+
+  private final Field2d field;
 
   void setDriveIsSlow(boolean isSlow) {
     this.driveIsDefaultSpeed = !isSlow;
@@ -119,10 +127,11 @@ public class RobotContainer {
     //Named commands for autonomous. In path planner, match the name of the command to the one set in here and it will
     //run the command associated with it
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
-    NamedCommands.registerCommand("grabCoral", grabber.activeIntake());
+    NamedCommands.registerCommand("grabCoral", grabber.passiveIntake());
     NamedCommands.registerCommand("releaseCoral", grabber.release());
     NamedCommands.registerCommand("LiftScoreHigh", elevator.goToScoringGoal(ScoringGoal.L4));
     NamedCommands.registerCommand("LiftPickupCoral", elevator.goToScoringGoal(ScoringGoal.Intake));
+    NamedCommands.registerCommand("PrepareIntake", elevator.goToScoringGoal(ScoringGoal.PrepareIntake));
     NamedCommands.registerCommand("ArmScoreHigh", arm.goToScoringGoal(ScoringGoal.L4));
     NamedCommands.registerCommand("ArmPickupCoral", arm.goToScoringGoal(ScoringGoal.Intake));
     NamedCommands.registerCommand("ArmScoreLow", arm.goToScoringGoal(ScoringGoal.L1));
@@ -134,6 +143,18 @@ public class RobotContainer {
     //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
     grabber.setDefaultCommand(grabber.passiveIntake());
     intake.setDefaultCommand(intake.goToPos(IntakePosition.Up));
+
+    field = new Field2d();
+    SmartDashboard.putData("Field: ", field);
+
+    PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
+      field.getObject("target pose").setPose(pose);
+    });
+
+    PathPlannerLogging.setLogActivePathCallback((poses) -> {
+      field.getObject("path").setPoses(poses);
+    });
+
   }
 
   /**
@@ -164,82 +185,22 @@ public class RobotContainer {
 
     }
 
-    if(DriverStation.isTest()) { // child safety mode
-      // All controller inputs for main teleop mode
-      // driver
-      driverController.options()
-        .onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      
-      // ground intake control
-      driverController.L2().whileTrue(
-        Commands.run(() -> {
-          intake.runIntake(0.7);
-        }, intake)
-      );
-      driverController.R2().onTrue(
-        Commands.run(() -> {
-          intake.runIntake(-2.8);
-        }, intake)
-      );
-      driverController.R2().onFalse(
-        Commands.run(() -> {
-          intake.runIntake(0);
-        }, intake)
-      );
-      driverController.circle().onTrue(
-        Commands.run(() -> {
-          this.setDriveIsSlow(false);
-          intake.runIntake(0);
-        }, intake)
-      );
-      driverController.R1().onTrue(
-        intake.goToPos(IntakePosition.Down)
-      );
-      // reset state, and stop commands
-      driverController.triangle().onTrue(intake.killSwitch());
-
-      driverController.povRight().whileTrue(new AutoAlign(true, drivebase));
-      driverController.povLeft().whileTrue(new AutoAlign(false, drivebase));   
-
-      // operator
-      // extake / intake
-      utilityController.leftBumper().whileTrue(grabber.release());
-      utilityController.rightBumper().onTrue(elevator.runIntake(grabber));
-      
-      // elevator/arm preset positions
-      utilityController.a().onTrue(Commands.deadline(
-        elevator.goToScoringGoal(ScoringGoal.PrepareIntake),
-        arm.goToScoringGoal(ScoringGoal.PrepareIntake)
-      ));
+    if(DriverStation.isTest()) {
       // scoring
       // composing a deadline of commands into a funtion
       Function<ScoringGoal, Command> scoringCommand = (goal) -> {
         return Commands.sequence(
           // make sure the arm swings out a little, as to not hit the shoe box
-          arm.goToScoringGoal(goal).withTimeout(0.3),
+          //arm.goToScoringGoal(goal).withTimeout(0.3),
           Commands.deadline(
-            elevator.goToScoringGoal(goal),
-            arm.goToScoringGoal(goal).withTimeout(0.3)
+            elevator.goToScoringGoal(goal)//,
+            //arm.goToScoringGoal(goal).withTimeout(0.3)
           )
         );
       };
       utilityController.y().onTrue(scoringCommand.apply(ScoringGoal.L4));
       utilityController.x().onTrue(scoringCommand.apply(ScoringGoal.L3));
       utilityController.b().onTrue(scoringCommand.apply(ScoringGoal.L2));
-
-      // manual override toggle for controlling the elevator
-      utilityController.povLeft()
-        .onTrue(Commands.runOnce(elevator::toggleManual));
-      // manual override toggle for controlling the arm
-      utilityController.povRight()
-        .onTrue(Commands.runOnce(arm::toggleManual));
-      // go down
-      utilityController.povDown().onTrue(elevator.goToScoringGoal(ScoringGoal.Intake));
-
-      // set elevator zero position manually
-      // I don't think this does anything
-      utilityController.start()
-        .onTrue(Commands.runOnce(elevator::zeroPosition));
     } else if(DriverStation.isTeleop()) {
       // All controller inputs for main teleop mode
       // driver
@@ -258,7 +219,7 @@ public class RobotContainer {
       );
       driverController.R2().onTrue(
         Commands.run(() -> {
-          intake.runIntake(-2.8);
+          intake.runIntake(-3.0);
         }, intake)
       );
       driverController.R2().onFalse(
@@ -281,13 +242,14 @@ public class RobotContainer {
       // reset state, and stop commands
       driverController.triangle().onTrue(intake.killSwitch());
 
-      driverController.povRight().onTrue(new AutoAlign(true, drivebase));
-      driverController.povLeft().onTrue(new AutoAlign(false, drivebase));   
+      driverController.povRight().whileTrue(new AutoAlign(true, drivebase));
+      driverController.povLeft().whileTrue(new AutoAlign(false, drivebase));   
 
       // operator
       // extake / intake
       utilityController.leftBumper().whileTrue(grabber.release());
       utilityController.rightBumper().onTrue(elevator.runIntake(grabber));
+      utilityController.rightTrigger().whileTrue(grabber.activeIntake(-4));
       
       // elevator/arm preset positions
       utilityController.a().onTrue(Commands.deadline(
@@ -336,12 +298,12 @@ public class RobotContainer {
   long runningTime = 2000;
   public Command getAutonomousCommand() {
     // drive
-    return Commands.run(
-      () -> drivebase.drive(new ChassisSpeeds(-1, 0, 0)),
-      drivebase
-    ).withTimeout(1);
+     //return Commands.run(
+       //() -> drivebase.drive(new ChassisSpeeds(-1, 0, 0)),
+       //drivebase
+     //).withTimeout(1);
 
-    //return new PathPlannerAuto("Score On High");
+    return new PathPlannerAuto("Straight path");
 
     //SmartDashboard.putData(auto_chooser);
   }

@@ -97,6 +97,25 @@ public class SwerveSubsystem extends SubsystemBase {
       .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) > 0.159);
   }
 
+/**
+   * Command to drive the robot using translative values and heading as angular velocity.
+   *
+   * @param translationX     Translation in the X direction. Cubed for smoother controls.
+   * @param translationY     Translation in the Y direction. Cubed for smoother controls.
+   * @param angularRotationX Angular velocity of the robot to set. Cubed for smoother controls.
+   * @return Drive command.
+   */
+  public Command driveCommand2(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
+    return run(() -> {
+      // Make the robot move
+      this.swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
+                            translationX.getAsDouble() * this.swerveDrive.getMaximumChassisVelocity(),
+                            translationY.getAsDouble() * this.swerveDrive.getMaximumChassisVelocity()), 0.8),
+                        Math.pow(angularRotationX.getAsDouble(), 3) * this.swerveDrive.getMaximumChassisAngularVelocity(),
+                        false,
+                        true);
+    });
+  }
 
   // Refer to this link for explination of the keys: https://firstfrc.blob.core.windows.net/frc2025/FieldAssets/2025FieldDrawings-FieldLayoutAndMarking.pdf
   // Values: 0 = Coral Station, 1 = Processor, 2 = Barge, 3 = Reef
@@ -166,7 +185,7 @@ public class SwerveSubsystem extends SubsystemBase {
   
   @Override
   public void periodic() {
-    LimelightHelpers.printPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT));
+    LimelightHelpers.printPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue(LIMELIGHT));
     this.swerveDrive.updateOdometry();
     updateVisionOdometry();
   }
@@ -209,9 +228,9 @@ public class SwerveSubsystem extends SubsystemBase {
           // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
           new PPHolonomicDriveController(
               // PPHolonomicController is the built in path following controller for holonomic drive trains
-              new PIDConstants(5.0, 0.0, 0.0),
+              new PIDConstants(0.0, 0.0, 0.0),
               // Translation PID constants
-              new PIDConstants(5.0, 0.0, 0.0)
+              new PIDConstants(0.0, 0.0, 0.0)
               // Rotation PID constants
           ),
           config,
@@ -688,7 +707,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void updateVisionOdometry(){
     boolean rejectUpdate = false;
     LimelightHelpers.SetRobotOrientation("limelight",this.swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT);
+    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LIMELIGHT);
     if(Math.abs(navx.getAngularVelocityZWorld().getValueAsDouble()) > 360){ // if our angular velocity is greater than 360 degrees per second, ignore vision updates
       rejectUpdate = true;
     }

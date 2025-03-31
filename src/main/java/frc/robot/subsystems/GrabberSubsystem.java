@@ -45,8 +45,8 @@ public class GrabberSubsystem extends SubsystemBase{
     }
 
     //grab command we are actively using. just turns inward very fast
-    public Command activeIntake(){
-        final VoltageOut m_request = new VoltageOut(-2);
+    public Command activeIntake(int speed){
+        final VoltageOut m_request = new VoltageOut(speed);
         return run(() -> {
             grabberMotor.setControl(m_request);
         });
