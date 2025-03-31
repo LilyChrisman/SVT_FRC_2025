@@ -145,6 +145,7 @@ public class RobotContainer {
     intake.setDefaultCommand(intake.goToPos(IntakePosition.Up));
 
     field = new Field2d();
+    drivebase.field = field;
     SmartDashboard.putData("Field: ", field);
 
     PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
@@ -219,7 +220,7 @@ public class RobotContainer {
       );
       driverController.R2().onTrue(
         Commands.run(() -> {
-          intake.runIntake(-2.0);
+          intake.runIntake(-2.5);
         }, intake)
       );
       driverController.R2().onFalse(
