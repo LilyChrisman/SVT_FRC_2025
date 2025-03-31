@@ -19,7 +19,7 @@ public class ArmSubsystem extends SubsystemBase{
     private final TalonFX armMotor = new TalonFX(42, "rio");
 
     //set positions for the arm to score
-    protected double posForL4 = 40;
+    protected double posForL4 = 43;
     protected double posForL3 = 44;
     protected double posForL2 = 32;
     protected double posForL1 = 18;
@@ -28,6 +28,8 @@ public class ArmSubsystem extends SubsystemBase{
     // used to determine which goal pos to reposition when leaving manual mode
     protected ScoringGoal lastScoringGoal = ScoringGoal.None;
     protected double posBeforeManual = 0.0;
+
+    private double lastScorePostion = 0;
 
     // why does this exist?????
     // TODO change all instances of this to isManual and hope it works
@@ -39,12 +41,13 @@ public class ArmSubsystem extends SubsystemBase{
 
     private boolean isManual = false;
 
-    public Command sheath(GrabberSubsystem grabber) {
-        return Commands.sequence(
-            //Commands.run(() -> this.runMotorManual(-1)).withTimeout(0.1),
-            grabber.release().withTimeout(0.1)
-            //Commands.run(() -> this.runMotorManual(1)).withTimeout(0.1)
-        );
+    public Command sheath() {
+        return runOnce(() -> {
+            double position = armMotor.getPosition().getValueAsDouble()-5;
+            final MotionMagicVoltage m_request = new MotionMagicVoltage(position)
+            .withSlot(0);
+            armMotor.setControl(m_request);
+        });
     }
 
     public void cancelCommands() {
@@ -163,6 +166,7 @@ public class ArmSubsystem extends SubsystemBase{
         final MotionMagicVoltage m_request = new MotionMagicVoltage(position)
             .withSlot(0);
         this.lastScoringGoal = goal;
+        System.out.println(lastScorePostion);
         return run(() -> {
             armMotor.setControl(m_request);
         });

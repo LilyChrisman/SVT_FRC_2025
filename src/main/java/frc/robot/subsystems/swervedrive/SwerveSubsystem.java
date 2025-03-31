@@ -18,6 +18,7 @@ import com.pathplanner.lib.controllers.PPLTVController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -34,6 +35,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.ADIS16448_IMU.IMUAxis;
@@ -79,6 +81,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private final IMUData LLimu = LimelightHelpers.getIMUData(getName());
   private final Pigeon2 navx = new Pigeon2(1);
 
+  public Field2d field;
+
   public void setMaxSpeed(double speed) {
     this.swerveDrive.setMaximumAllowableSpeeds(speed, speed);
   }
@@ -97,25 +101,6 @@ public class SwerveSubsystem extends SubsystemBase {
       .until(() -> this.swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) > 0.159);
   }
 
-/**
-   * Command to drive the robot using translative values and heading as angular velocity.
-   *
-   * @param translationX     Translation in the X direction. Cubed for smoother controls.
-   * @param translationY     Translation in the Y direction. Cubed for smoother controls.
-   * @param angularRotationX Angular velocity of the robot to set. Cubed for smoother controls.
-   * @return Drive command.
-   */
-  public Command driveCommand2(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
-    return run(() -> {
-      // Make the robot move
-      this.swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
-                            translationX.getAsDouble() * this.swerveDrive.getMaximumChassisVelocity(),
-                            translationY.getAsDouble() * this.swerveDrive.getMaximumChassisVelocity()), 0.8),
-                        Math.pow(angularRotationX.getAsDouble(), 3) * this.swerveDrive.getMaximumChassisAngularVelocity(),
-                        false,
-                        true);
-    });
-  }
 
   // Refer to this link for explination of the keys: https://firstfrc.blob.core.windows.net/frc2025/FieldAssets/2025FieldDrawings-FieldLayoutAndMarking.pdf
   // Values: 0 = Coral Station, 1 = Processor, 2 = Barge, 3 = Reef
@@ -188,6 +173,8 @@ public class SwerveSubsystem extends SubsystemBase {
     LimelightHelpers.printPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue(LIMELIGHT));
     this.swerveDrive.updateOdometry();
     updateVisionOdometry();
+
+     field.getObject("pose").setPose(getPose());
   }
 
   @Override
@@ -228,9 +215,9 @@ public class SwerveSubsystem extends SubsystemBase {
           // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
           new PPHolonomicDriveController(
               // PPHolonomicController is the built in path following controller for holonomic drive trains
-              new PIDConstants(0.0, 0.0, 0.0),
-              // Translation PID constants
+              new PIDConstants(2, 0.0, 0.0),
               new PIDConstants(0.0, 0.0, 0.0)
+              // Translation PID constant
               // Rotation PID constants
           ),
           config,
@@ -706,16 +693,20 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void updateVisionOdometry(){
     boolean rejectUpdate = false;
-    LimelightHelpers.SetRobotOrientation("limelight",this.swerveDrive.getPose().getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LIMELIGHT);
-    if(Math.abs(navx.getAngularVelocityZWorld().getValueAsDouble()) > 360){ // if our angular velocity is greater than 360 degrees per second, ignore vision updates
-      rejectUpdate = true;
-    }
+    LimelightHelpers.SetRobotOrientation("limelight",this.getHeading().getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT);
+    if(Math.abs(swerveDrive.getRobotVelocity().omegaRadiansPerSecond) > 2*Math.PI){ // if our angular velocity is greater than 360 degrees per second, ignore vision updates
     if(limelightMeasurement.tagCount == 0){
       rejectUpdate = true;
+    } else if(limelightMeasurement.rawFiducials[0].distToCamera > 3){
+      rejectUpdate = true;
+    } else if(limelightMeasurement.rawFiducials[0].ambiguity > 0.7){
+      rejectUpdate = true;
     }
+    SmartDashboard.putBoolean("Rejecting Update", rejectUpdate);
     if(!rejectUpdate){
-      this.swerveDrive.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds, VecBuilder.fill(.7,.7,9999999));
+      this.swerveDrive.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds, VecBuilder.fill(.1,.1,9999999));
+      }
     }
   }
   /**
