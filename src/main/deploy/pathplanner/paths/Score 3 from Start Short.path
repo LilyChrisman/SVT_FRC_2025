@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.260211267605634,
-        "y": 5.328873239436619
+        "x": 5.285808694211159,
+        "y": 5.308656616226351
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 5.2662006578947365
       },
       "prevControl": {
-        "x": 5.452389501482579,
-        "y": 5.535478826908821
+        "x": 5.439100370136076,
+        "y": 5.460930282588057
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Randome idk what they are",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -119.99999999999999

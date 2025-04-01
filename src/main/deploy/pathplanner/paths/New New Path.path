@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 5.999234693877551,
-        "y": 4.171
+        "x": 5.9,
+        "y": 4.15
       },
       "prevControl": {
-        "x": 6.320254767492349,
-        "y": 4.182357488982021
+        "x": 6.221220921204749,
+        "y": 4.15
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Randome idk what they are",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

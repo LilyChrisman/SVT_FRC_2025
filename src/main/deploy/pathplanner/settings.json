@@ -2,7 +2,12 @@
   "robotWidth": 0.8332,
   "robotLength": 0.833,
   "holonomicMode": true,
-  "pathFolders": [],
+  "pathFolders": [
+    "Get Coral",
+    "New Folder",
+    "Randome idk what they are",
+    "Place coral, start"
+  ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

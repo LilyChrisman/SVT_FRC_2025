@@ -201,6 +201,7 @@ public class SwerveSubsystem extends SubsystemBase {
           this::getRobotVelocity,
           // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
           (speedsRobotRelative, moduleFeedForwards) -> {
+            speedsRobotRelative.omegaRadiansPerSecond = -speedsRobotRelative.omegaRadiansPerSecond;
             if (enableFeedforward) {
               this.swerveDrive.drive(
                   speedsRobotRelative,
@@ -215,8 +216,8 @@ public class SwerveSubsystem extends SubsystemBase {
           // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
           new PPHolonomicDriveController(
               // PPHolonomicController is the built in path following controller for holonomic drive trains
-              new PIDConstants(2, 0.0, 0.0),
-              new PIDConstants(0.1, 0.0, 0.0)
+              new PIDConstants(5, 0.0, 0.0),
+              new PIDConstants(5.5, 0.0, 0.0)
               // Translation PID constant
               // Rotation PID constants
           ),
@@ -705,7 +706,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
     SmartDashboard.putBoolean("Rejecting Update", rejectUpdate);
     if(!rejectUpdate){
-      this.swerveDrive.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds, VecBuilder.fill(.1,.1,9999999));
+      this.swerveDrive.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds, VecBuilder.fill(.5,.5,9999999));
       }
     }
   }

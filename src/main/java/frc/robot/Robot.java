@@ -127,8 +127,9 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousPeriodic()
   {
-    SmartDashboard.putNumber("Angular Velocity", this.m_robotContainer.driveAngularVelocity.get().vxMetersPerSecond);
-    SmartDashboard.putString("Kinematics", this.m_robotContainer.drivebase.getKinematics().toString());
+    SmartDashboard.putNumber("Heading Angle", this.m_robotContainer.drivebase.getHeading().getDegrees());
+    SmartDashboard.putNumber("Kinematics X", this.m_robotContainer.drivebase.getFieldVelocity().vxMetersPerSecond);
+    SmartDashboard.putNumber("Kinematics Y", this.m_robotContainer.drivebase.getFieldVelocity().vyMetersPerSecond);
     CommandScheduler.getInstance().run();
     // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
