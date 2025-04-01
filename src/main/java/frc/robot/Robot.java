@@ -4,10 +4,13 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -84,6 +87,7 @@ public class Robot extends TimedRobot
     m_robotContainer.setMotorBrake(true);
     disabledTimer.reset();
     disabledTimer.start();
+    LimelightHelpers.SetIMUMode(null, 1);
   }
 
   @Override
@@ -103,6 +107,9 @@ public class Robot extends TimedRobot
   public void autonomousInit()
   {
     m_robotContainer.setMotorBrake(true);
+    m_robotContainer.intake.rotatorMotor.setNeutralMode(NeutralModeValue.Brake);
+    m_robotContainer.intake.wheelMotor.setNeutralMode(NeutralModeValue.Brake);
+    
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -110,6 +117,7 @@ public class Robot extends TimedRobot
     {
       m_autonomousCommand.schedule();
     }
+    LimelightHelpers.SetIMUMode(null, 2);
   }
 
   /**
@@ -119,6 +127,9 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousPeriodic()
   {
+    SmartDashboard.putNumber("Heading Angle", this.m_robotContainer.drivebase.getHeading().getDegrees());
+    SmartDashboard.putNumber("Kinematics X", this.m_robotContainer.drivebase.getFieldVelocity().vxMetersPerSecond);
+    SmartDashboard.putNumber("Kinematics Y", this.m_robotContainer.drivebase.getFieldVelocity().vyMetersPerSecond);
     CommandScheduler.getInstance().run();
     // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -132,6 +143,10 @@ public class Robot extends TimedRobot
   public void teleopInit()
   {
     m_robotContainer.setMotorBrake(true);
+    m_robotContainer.intake.rotatorMotor.setNeutralMode(NeutralModeValue.Brake);
+    m_robotContainer.intake.wheelMotor.setNeutralMode(NeutralModeValue.Brake);
+    this.m_robotContainer.setDriveIsSlow(false);
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -158,6 +173,8 @@ public class Robot extends TimedRobot
   {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+
+    this.m_robotContainer.setDriveIsSlow(true);
   }
 
   /**

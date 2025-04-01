@@ -6,17 +6,20 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 
 public class IntakeSubsystem extends SubsystemBase{
-    private final TalonFX rotatorMotor = new TalonFX(51, "rio");
-    private final TalonFX wheelMotor = new TalonFX(52, "rio");
+    public final TalonFX rotatorMotor = new TalonFX(51, "rio");
+    public final TalonFX wheelMotor = new TalonFX(52, "rio");
 
-    public final double IDLE_POS = 0;
-    public final double INTAKE_POS = 0;
-    public final double TRANSFER_POS = 0;
+    private final double IDLE_POS = 0;
+    private final double INTAKE_POS = -0.07;
+    private final double TRANSFER_POS = -2.55;
 
     public IntakeSubsystem(){
         var talonFXConfigs = new TalonFXConfiguration();
@@ -41,29 +44,72 @@ public class IntakeSubsystem extends SubsystemBase{
         wheelMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    public void runMotorManual(double direction) {
-        if(this.getCurrentCommand() != null){
-            this.getCurrentCommand().cancel();
+    public enum IntakePosition {
+        None,
+        Up,
+        Down
+    }
+
+    private IntakePosition state = IntakePosition.None;
+
+    public Command goToPos(IntakePosition pos){
+        var defaultRet = Commands.run(() -> {}, this);
+
+        if(pos == this.state) return defaultRet;
+        this.state = pos;
+
+        double voltage;
+        double time;
+        double idleVolts;
+        switch(pos) {
+            case Up: {
+                voltage = -1.5;
+                time = 1.5;
+                idleVolts = -0.3;
+                break;
+            }
+            case Down: {
+                voltage = 0.7;
+                time = 0.2;
+                idleVolts = 0;
+                break;
+            }
+            default: {
+                return defaultRet;
+            }
         }
-        this.rotatorMotor.set(direction * 0.3);
+
+        final VoltageOut request = new VoltageOut(voltage);
+        final VoltageOut idleReq = new VoltageOut(idleVolts);
+
+        return Commands.run(() -> {
+            this.rotatorMotor.setControl(request);
+        }, this).withTimeout(time).andThen(Commands.run(() -> {
+            this.rotatorMotor.setControl(idleReq);
+        }, this));
     }
 
-    public Command goToPos(double pos, double dir){
-        final MotionMagicVoltage m_request = new MotionMagicVoltage(pos)
-            .withSlot(0);
-        return Commands.parallel(
-            Commands.run(() -> {
-                rotatorMotor.setControl(m_request);
-            }),
-            this.runIntake(dir)
-        );
-         
-    }
+    public Command killSwitch() {
+        final VoltageOut zeroVolt = new VoltageOut(0);
 
-    public Command runIntake(double speed){
-        final VoltageOut m_request = new VoltageOut(speed);
-        return run(() -> {
-            wheelMotor.setControl(m_request);
+        return Commands.runOnce(() -> {
+            if(this.getCurrentCommand() != null) {
+                this.getCurrentCommand().cancel();
+            }
+            this.rotatorMotor.setControl(zeroVolt);
+            this.wheelMotor.setControl(zeroVolt);
         });
+    }
+
+    public void runIntake(double speed){
+        final VoltageOut m_request = new VoltageOut(speed);
+        wheelMotor.setControl(m_request);
+    }
+
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Rotake Position", this.rotatorMotor.getPosition().getValueAsDouble());
+       
     }
 }

@@ -28,8 +28,8 @@ public class ElevatorSubsystem extends SubsystemBase{
     protected final double LIFT_SCORE_L3 = -1;
     protected final double LIFT_SCORE_L4 = -83.0;
     protected final double LIFT_BOTTOM = 0;
-    protected final double LIFT_PREPARE_INTAKE_CORAL = -13;
-    protected final double LIFT_INTAKE_CORAL = -2;
+    protected final double LIFT_PREPARE_INTAKE_CORAL = -16;
+    protected final double LIFT_INTAKE_CORAL = 0;
 
     //Checks if we have run the lift down to zero position
     private boolean hasZeroed = false;
@@ -140,7 +140,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         
         return Commands.sequence(
             this.goToScoringGoal(ScoringGoal.Intake).withTimeout(0.5),
-            grabber.activeIntake().withTimeout(0.1),
+            grabber.activeIntake(-2).withTimeout(0.1),
             this.goToScoringGoal(ScoringGoal.PrepareIntake).withTimeout(0.25)
         );
     }
