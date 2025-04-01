@@ -1,0 +1,105 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.09,
+        "y": 4.55
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.60562615335654,
+        "y": 4.284001288102623
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.14,
+        "y": 4.045
+      },
+      "prevControl": {
+        "x": 2.4825857414281685,
+        "y": 4.199360596277019
+      },
+      "nextControl": {
+        "x": 1.9086350104409873,
+        "y": 3.9407527023831386
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.5634221311475409,
+        "y": 4.045
+      },
+      "prevControl": {
+        "x": 0.9810066241143092,
+        "y": 4.0742217657372235
+      },
+      "nextControl": {
+        "x": 0.3140320088178765,
+        "y": 4.027548155272435
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.4574795081967213,
+        "y": 4.045
+      },
+      "prevControl": {
+        "x": 1.1155469524384192,
+        "y": 4.01491627004957
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.6,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.6794871794872223,
+      "maxWaypointRelativePos": 2.6339031339031456,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Get Coral",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}
