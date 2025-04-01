@@ -28,7 +28,7 @@ public class ElevatorSubsystem extends SubsystemBase{
     protected final double LIFT_SCORE_L3 = -1;
     protected final double LIFT_SCORE_L4 = -83.0;
     protected final double LIFT_BOTTOM = 0;
-    protected final double LIFT_PREPARE_INTAKE_CORAL = -13;
+    protected final double LIFT_PREPARE_INTAKE_CORAL = -16;
     protected final double LIFT_INTAKE_CORAL = 0;
 
     //Checks if we have run the lift down to zero position

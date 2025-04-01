@@ -6,6 +6,7 @@ import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
@@ -26,12 +27,12 @@ public class AutoAlign extends Command{
     public final double X_REEF_ALIGNMENT_P = 1.25;
     public final double Y_REEF_ALIGNMENT_P = 1;
     public final double REEF_ALIGNMENT_D = 0.000;
-    public final double ROT_REEF_ALIGNMENT_P = 0.11;
+    public final double ROT_REEF_ALIGNMENT_P = .15;
 
     public final double ROT_SETPOINT_REEF_ALIGNMENT = 0;
-    public final double ROT_TOLERANCE_REEF_ALIGNMENT = 5;
+    public final double ROT_TOLERANCE_REEF_ALIGNMENT = .5;
 
-    public final double X_SETPOINT_REEF_ALIGNMENT = -.6;
+    public final double X_SETPOINT_REEF_ALIGNMENT = -.8;
     public final double X_TOLERANCE_REEF_ALIGNMENT = .08;
 
     public final double Y_SETPOINT_REEF_ALIGNMENT = 0.1;
@@ -42,7 +43,7 @@ public class AutoAlign extends Command{
         yController = new PIDController(Y_REEF_ALIGNMENT_P, 0, REEF_ALIGNMENT_D);
         rotController = new PIDController(ROT_REEF_ALIGNMENT_P, 0, 0);
         driveController = new HolonomicDriveController(xController, yController, 
-            new ProfiledPIDController(0.001, 0, 0, new TrapezoidProfile.Constraints(4.8, 5.0)));
+            new ProfiledPIDController(ROT_REEF_ALIGNMENT_P, 0, 0, new TrapezoidProfile.Constraints(4.8, 5.0)));
         this.isRightSCore = isRightSCore;
         this.drivebase = drivebase;
         addRequirements(drivebase);
@@ -122,11 +123,16 @@ public class AutoAlign extends Command{
             SmartDashboard.putNumber(
                 "RotTarget", ROT_SETPOINT_REEF_ALIGNMENT);
 
-             drivebase.drive(
+            
+            drivebase.drive(
                 new Translation2d(xSpeed, ySpeed),
-                0.0,
+                rotValue,
                 false
             ); 
+
+          //  ChassisSpeeds speed = new ChassisSpeeds(xSpeed, ySpeed, positions[4]);
+          //  speed.omegaRadiansPerSecond = -speed.omegaRadiansPerSecond;
+          //  drivebase.setChassisSpeeds(speed);
 
           // drivebase.driveCommand2(() -> xSpeed, () -> ySpeed, () -> rotValue);
 

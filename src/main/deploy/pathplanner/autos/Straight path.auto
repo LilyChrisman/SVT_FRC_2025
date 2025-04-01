@@ -23,7 +23,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Score 3 from Start"
+                  "pathName": "New Path"
                 }
               }
             ]
@@ -57,7 +57,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Score 3 from Start Short"
+            "pathName": "New New Path"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Sheath"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
           }
         },
         {
