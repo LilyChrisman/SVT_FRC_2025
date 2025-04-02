@@ -4,9 +4,14 @@
   "holonomicMode": true,
   "pathFolders": [
     "Get Coral",
-    "New Folder",
-    "Randome idk what they are",
-    "Place coral, start"
+    "score side 1",
+    "score side 2",
+    "score side 3",
+    "score side 4",
+    "score side 5",
+    "score side 6",
+    "Place coral, start",
+    "Randome idk what they are"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,
