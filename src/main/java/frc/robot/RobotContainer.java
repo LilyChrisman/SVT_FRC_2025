@@ -119,6 +119,18 @@ public class RobotContainer {
       () -> Math.cos(driverController.getRawAxis(2) * Math.PI) * (Math.PI * 2)
     ).headingWhile(true);
 
+  // composing a deadline of commands into a funtion
+  Command scoringCommand(ScoringGoal goal) {
+    return Commands.sequence(
+      // make sure the arm swings out a little, as to not hit the shoe box
+      arm.goToScoringGoal(goal).withTimeout(0.3),
+      Commands.deadline(
+        elevator.goToScoringGoal(goal),
+        arm.goToScoringGoal(goal).withTimeout(0.3)
+      )
+    );
+  }
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -129,29 +141,27 @@ public class RobotContainer {
 
     //Named commands for autonomous. In path planner, match the name of the command to the one set in here and it will
     //run the command associated with it
-    NamedCommands.registerCommand("test", Commands.print("I EXIST"));
-    NamedCommands.registerCommand("grabCoral", grabber.passiveIntake());
-    NamedCommands.registerCommand("releaseCoral", grabber.release().withTimeout(0.5));
-    NamedCommands.registerCommand("LiftScoreHigh", elevator.goToScoringGoal(ScoringGoal.L4));
-    NamedCommands.registerCommand("LiftPickupCoral", elevator.goToScoringGoal(ScoringGoal.Intake));
-    NamedCommands.registerCommand("PrepareIntake", elevator.goToScoringGoal(ScoringGoal.PrepareIntake).withTimeout(1));
+
+    // scoring commands
+    // arm
+    NamedCommands.registerCommand("Sheath", arm.sheath());
     NamedCommands.registerCommand("ArmScoreHigh", arm.goToScoringGoal(ScoringGoal.L4));
     NamedCommands.registerCommand("ArmPickupCoral", arm.goToScoringGoal(ScoringGoal.Intake));
     NamedCommands.registerCommand("ArmScoreLow", arm.goToScoringGoal(ScoringGoal.L1));
+    // elevator
+    NamedCommands.registerCommand("LiftPickupCoral", elevator.goToScoringGoal(ScoringGoal.Intake));
+    NamedCommands.registerCommand("LiftScoreHigh", elevator.goToScoringGoal(ScoringGoal.L4));
+    NamedCommands.registerCommand("PrepareIntake", elevator.goToScoringGoal(ScoringGoal.PrepareIntake).withTimeout(1));
+    // general
+    NamedCommands.registerCommand("PrepareL4", scoringCommand(ScoringGoal.L4));
+
+    // ground intake commands
     NamedCommands.registerCommand("RunGroundIntake", Commands.run(() -> intake.runIntake(-3), intake));
-    NamedCommands.registerCommand("Sheath", arm.sheath());
 
-    
+    // grabber intake commands
+    NamedCommands.registerCommand("releaseCoral", grabber.release().withTimeout(0.5));
+    NamedCommands.registerCommand("grabCoral", grabber.passiveIntake());
 
-    NamedCommands.registerCommand("PrepareL4", Commands.sequence(
-      Commands.print("RUNNING!!!!!!!!!!!!!!!!!!!!!!!!"),
-      // make sure the arm swings out a little, as to not hit the shoe box
-      arm.goToScoringGoal(ScoringGoal.L4).withTimeout(0.3),
-      Commands.deadline(
-        elevator.goToScoringGoal(ScoringGoal.L4).withTimeout(1),
-        arm.goToScoringGoal(ScoringGoal.L4).withTimeout(0.3)
-      )
-    ));
 
      auto_Chooser = AutoBuilder.buildAutoChooser();
      SmartDashboard.putData("Auto Chooser", auto_Chooser);
@@ -206,21 +216,9 @@ public class RobotContainer {
     }
 
     if(DriverStation.isTest()) {
-      // scoring
-      // composing a deadline of commands into a funtion
-      Function<ScoringGoal, Command> scoringCommand = (goal) -> {
-        return Commands.sequence(
-          // make sure the arm swings out a little, as to not hit the shoe box
-          //arm.goToScoringGoal(goal).withTimeout(0.3),
-          Commands.deadline(
-            elevator.goToScoringGoal(goal)//,
-            //arm.goToScoringGoal(goal).withTimeout(0.3)
-          )
-        );
-      };
-      utilityController.y().onTrue(scoringCommand.apply(ScoringGoal.L4));
-      utilityController.x().onTrue(scoringCommand.apply(ScoringGoal.L3));
-      utilityController.b().onTrue(scoringCommand.apply(ScoringGoal.L2));
+      utilityController.y().onTrue(scoringCommand(ScoringGoal.L4));
+      utilityController.x().onTrue(scoringCommand(ScoringGoal.L3));
+      utilityController.b().onTrue(scoringCommand(ScoringGoal.L2));
     } else {
       // All controller inputs for main teleop mode
       // driver
@@ -277,21 +275,9 @@ public class RobotContainer {
         arm.goToScoringGoal(ScoringGoal.PrepareIntake)
       ));
       // scoring
-      // composing a deadline of commands into a funtion
-      Function<ScoringGoal, Command> scoringCommand = (goal) -> {
-        return Commands.sequence(
-          Commands.print("Input is recieved"),
-          // make sure the arm swings out a little, as to not hit the shoe box
-          arm.goToScoringGoal(goal).withTimeout(0.3),
-          Commands.deadline(
-            elevator.goToScoringGoal(goal),
-            arm.goToScoringGoal(goal).withTimeout(0.3)
-          )
-        );
-      };
-      utilityController.y().onTrue(scoringCommand.apply(ScoringGoal.L4));
-      utilityController.x().onTrue(scoringCommand.apply(ScoringGoal.L3));
-      utilityController.b().onTrue(scoringCommand.apply(ScoringGoal.L2));
+      utilityController.y().onTrue(scoringCommand(ScoringGoal.L4));
+      utilityController.x().onTrue(scoringCommand(ScoringGoal.L3));
+      utilityController.b().onTrue(scoringCommand(ScoringGoal.L2));
 
       // manual override toggle for controlling the elevator
       utilityController.povLeft()
