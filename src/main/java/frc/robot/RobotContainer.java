@@ -124,8 +124,8 @@ public class RobotContainer {
     return Commands.sequence(
       // make sure the arm swings out a little, as to not hit the shoe box
       arm.goToScoringGoal(goal).withTimeout(0.3),
-      Commands.deadline(
-        elevator.goToScoringGoal(goal),
+      Commands.parallel(
+        elevator.goToScoringGoal(goal).withTimeout(0.3),
         arm.goToScoringGoal(goal).withTimeout(0.3)
       )
     );
