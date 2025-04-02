@@ -7,13 +7,7 @@
         {
           "type": "named",
           "data": {
-            "name": "grabCoral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PrepareIntake"
+            "name": "ArmIntake"
           }
         },
         {
@@ -36,33 +30,28 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "Sheath"
+            "name": "SheathScore"
           }
         },
         {
-          "type": "wait",
+          "type": "parallel",
           "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "releaseCoral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "backup middle"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "LowerArm"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "backup middle"
+                }
+              }
+            ]
           }
         }
       ]
