@@ -5,9 +5,71 @@
     "data": {
       "commands": [
         {
-          "type": "race",
+          "type": "sequential",
           "data": {
-            "commands": []
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "grabCoral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "PrepareIntake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "PrepareL4"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Move to 5 from Start"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Sheath"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "releaseCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Move to side from 5"
           }
         }
       ]

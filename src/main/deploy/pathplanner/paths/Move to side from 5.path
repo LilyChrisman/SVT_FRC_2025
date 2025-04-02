@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.334,
-        "y": 2.868
+        "x": 5.334118150684932,
+        "y": 2.687714041095891
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.195325196097149,
-        "y": 3.0760127370198895
+        "x": 5.195443346782081,
+        "y": 2.8957267781157805
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Score location side 5"
     },
     {
       "anchor": {
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "score side 5",
