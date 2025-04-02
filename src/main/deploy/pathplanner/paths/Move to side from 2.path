@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.694736842105262,
-        "y": 6.632483552631579
+        "x": 3.5696546052631577,
+        "y": 6.28610197368421
       },
       "isLocked": false,
       "linkedName": "Score location side 2"
     },
     {
       "anchor": {
-        "x": 4.4067434210526315,
-        "y": 7.4984375
+        "x": 2.9538651315789473,
+        "y": 6.95
       },
       "prevControl": {
-        "x": 3.4067434210526315,
-        "y": 7.4984375
+        "x": 3.5215460526315785,
+        "y": 6.430427631578947
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 1.5,
+    "maxAcceleration": 1.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -28.95099520746684
   },
   "reversed": false,
   "folder": "score side 2",
@@ -50,5 +50,5 @@
     "velocity": 0,
     "rotation": -59.99999999999999
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
