@@ -143,24 +143,16 @@ public class RobotContainer {
     //run the command associated with it
 
     // scoring commands
-    // arm
-    NamedCommands.registerCommand("Sheath", arm.sheath());
-    NamedCommands.registerCommand("ArmScoreHigh", arm.goToScoringGoal(ScoringGoal.L4));
-    NamedCommands.registerCommand("ArmPickupCoral", arm.goToScoringGoal(ScoringGoal.Intake));
-    NamedCommands.registerCommand("ArmScoreLow", arm.goToScoringGoal(ScoringGoal.L1));
-    // elevator
-    NamedCommands.registerCommand("LiftPickupCoral", elevator.goToScoringGoal(ScoringGoal.Intake));
-    NamedCommands.registerCommand("LiftScoreHigh", elevator.goToScoringGoal(ScoringGoal.L4));
-    NamedCommands.registerCommand("PrepareIntake", elevator.goToScoringGoal(ScoringGoal.PrepareIntake).withTimeout(1));
-    // general
     NamedCommands.registerCommand("PrepareL4", scoringCommand(ScoringGoal.L4));
+    NamedCommands.registerCommand("ArmIntake", elevator.runIntake(grabber));
 
-    // ground intake commands
-    NamedCommands.registerCommand("RunGroundIntake", Commands.run(() -> intake.runIntake(-3), intake));
-
-    // grabber intake commands
-    NamedCommands.registerCommand("releaseCoral", grabber.release().withTimeout(0.5));
-    NamedCommands.registerCommand("grabCoral", grabber.passiveIntake());
+    // grabber commands
+    NamedCommands.registerCommand("SheathScore", Commands.sequence(
+      Commands.waitSeconds(0.5),
+      arm.sheath(),
+      Commands.waitSeconds(0.5),
+      grabber.release().withTimeout(0.5)
+    ));
 
 
      auto_Chooser = AutoBuilder.buildAutoChooser();

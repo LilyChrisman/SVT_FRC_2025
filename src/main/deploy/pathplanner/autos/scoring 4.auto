@@ -7,13 +7,7 @@
         {
           "type": "named",
           "data": {
-            "name": "grabCoral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PrepareIntake"
+            "name": "ArmIntake"
           }
         },
         {
@@ -36,27 +30,9 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "Sheath"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "releaseCoral"
+            "name": "SheathScore"
           }
         },
         {
