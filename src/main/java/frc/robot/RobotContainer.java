@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.EventMarker;
@@ -66,7 +67,7 @@ public class RobotContainer {
     );
   }
 
-  SendableChooser<Command> auto_chooser = new SendableChooser<>();
+  SendableChooser<Command> auto_Chooser = new SendableChooser<>();
 
   //Initializes our three subsystems
   final ElevatorSubsystem elevator = new ElevatorSubsystem();
@@ -152,8 +153,8 @@ public class RobotContainer {
       )
     ));
 
-    // autoChooser = AutoBuilder.buildAutoChooser();
-    // SmartDashboard.putData("Auto Chooser", autoChooser);
+     auto_Chooser = AutoBuilder.buildAutoChooser();
+     SmartDashboard.putData("Auto Chooser", auto_Chooser);
     //Zeroes the gyro when the robot container is initialized
     drivebase.zeroGyro();
     //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
@@ -323,7 +324,13 @@ public class RobotContainer {
        //drivebase
      //).withTimeout(1);
 
+<<<<<<< HEAD
     return new PathPlannerAuto("scoring foward");
+=======
+     return auto_Chooser.getSelected();
+
+    //return new PathPlannerAuto("testi");
+>>>>>>> 362090bbc6d7f0eea90acb98c7e98542a2a70fae
 
     //SmartDashboard.putData(auto_chooser);
   }
