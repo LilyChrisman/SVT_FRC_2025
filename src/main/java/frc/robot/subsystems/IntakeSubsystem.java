@@ -83,6 +83,7 @@ public class IntakeSubsystem extends SubsystemBase{
         final VoltageOut idleReq = new VoltageOut(idleVolts);
 
         return Commands.run(() -> {
+            this.runIntake(0);
             this.rotatorMotor.setControl(request);
         }, this).withTimeout(time).andThen(Commands.run(() -> {
             this.rotatorMotor.setControl(idleReq);

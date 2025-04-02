@@ -23,7 +23,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "New Path"
+                  "pathName": "start to reef"
                 }
               }
             ]
@@ -57,7 +57,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New New Path"
+            "pathName": "Score 3 from Start Short"
           }
         },
         {
@@ -76,6 +76,43 @@
           "type": "named",
           "data": {
             "name": "releaseCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "knock over coral 1"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "collect coral 1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RunGroundIntake"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "goto score 1"
           }
         }
       ]

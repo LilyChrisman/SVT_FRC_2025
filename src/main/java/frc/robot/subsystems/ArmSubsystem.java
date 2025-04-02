@@ -19,7 +19,7 @@ public class ArmSubsystem extends SubsystemBase{
     private final TalonFX armMotor = new TalonFX(42, "rio");
 
     //set positions for the arm to score
-    protected double posForL4 = 43;
+    protected double posForL4 = 44;
     protected double posForL3 = 44;
     protected double posForL2 = 32;
     protected double posForL1 = 18;
@@ -43,7 +43,7 @@ public class ArmSubsystem extends SubsystemBase{
 
     public Command sheath() {
         return runOnce(() -> {
-            double position = armMotor.getPosition().getValueAsDouble()-5;
+            double position = armMotor.getPosition().getValueAsDouble() - 14;
             final MotionMagicVoltage m_request = new MotionMagicVoltage(position)
             .withSlot(0);
             armMotor.setControl(m_request);

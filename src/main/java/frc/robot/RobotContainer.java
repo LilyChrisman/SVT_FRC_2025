@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -129,13 +130,27 @@ public class RobotContainer {
     //run the command associated with it
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
     NamedCommands.registerCommand("grabCoral", grabber.passiveIntake());
-    NamedCommands.registerCommand("releaseCoral", grabber.release());
+    NamedCommands.registerCommand("releaseCoral", grabber.release().withTimeout(0.5));
     NamedCommands.registerCommand("LiftScoreHigh", elevator.goToScoringGoal(ScoringGoal.L4));
     NamedCommands.registerCommand("LiftPickupCoral", elevator.goToScoringGoal(ScoringGoal.Intake));
-    NamedCommands.registerCommand("PrepareIntake", elevator.goToScoringGoal(ScoringGoal.PrepareIntake));
+    NamedCommands.registerCommand("PrepareIntake", elevator.goToScoringGoal(ScoringGoal.PrepareIntake).withTimeout(1));
     NamedCommands.registerCommand("ArmScoreHigh", arm.goToScoringGoal(ScoringGoal.L4));
     NamedCommands.registerCommand("ArmPickupCoral", arm.goToScoringGoal(ScoringGoal.Intake));
     NamedCommands.registerCommand("ArmScoreLow", arm.goToScoringGoal(ScoringGoal.L1));
+    NamedCommands.registerCommand("RunGroundIntake", Commands.run(() -> intake.runIntake(-3), intake));
+    NamedCommands.registerCommand("Sheath", arm.sheath());
+
+    
+
+    NamedCommands.registerCommand("PrepareL4", Commands.sequence(
+      Commands.print("RUNNING!!!!!!!!!!!!!!!!!!!!!!!!"),
+      // make sure the arm swings out a little, as to not hit the shoe box
+      arm.goToScoringGoal(ScoringGoal.L4).withTimeout(0.3),
+      Commands.deadline(
+        elevator.goToScoringGoal(ScoringGoal.L4).withTimeout(1),
+        arm.goToScoringGoal(ScoringGoal.L4).withTimeout(0.3)
+      )
+    ));
 
     // autoChooser = AutoBuilder.buildAutoChooser();
     // SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -205,7 +220,7 @@ public class RobotContainer {
       utilityController.y().onTrue(scoringCommand.apply(ScoringGoal.L4));
       utilityController.x().onTrue(scoringCommand.apply(ScoringGoal.L3));
       utilityController.b().onTrue(scoringCommand.apply(ScoringGoal.L2));
-    } else if(DriverStation.isTeleop()) {
+    } else {
       // All controller inputs for main teleop mode
       // driver
       driverController.options()
@@ -264,6 +279,7 @@ public class RobotContainer {
       // composing a deadline of commands into a funtion
       Function<ScoringGoal, Command> scoringCommand = (goal) -> {
         return Commands.sequence(
+          Commands.print("Input is recieved"),
           // make sure the arm swings out a little, as to not hit the shoe box
           arm.goToScoringGoal(goal).withTimeout(0.3),
           Commands.deadline(
@@ -307,7 +323,7 @@ public class RobotContainer {
        //drivebase
      //).withTimeout(1);
 
-    return new PathPlannerAuto("Straight path");
+    return new PathPlannerAuto("testi");
 
     //SmartDashboard.putData(auto_chooser);
   }

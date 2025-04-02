@@ -216,8 +216,8 @@ public class SwerveSubsystem extends SubsystemBase {
           // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
           new PPHolonomicDriveController(
               // PPHolonomicController is the built in path following controller for holonomic drive trains
-              new PIDConstants(5, 0.0, 0.0),
-              new PIDConstants(5.5, 0.0, 0.0)
+              new PIDConstants(3, 0.0, 0.0),
+              new PIDConstants(4, 0.0, 0.0)
               // Translation PID constant
               // Rotation PID constants
           ),
@@ -697,6 +697,8 @@ public class SwerveSubsystem extends SubsystemBase {
     LimelightHelpers.SetRobotOrientation("limelight",this.getHeading().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT);
     if(Math.abs(swerveDrive.getRobotVelocity().omegaRadiansPerSecond) > 2*Math.PI){ // if our angular velocity is greater than 360 degrees per second, ignore vision updates
+      rejectUpdate = true;
+    }
     if(limelightMeasurement.tagCount == 0){
       rejectUpdate = true;
     } else if(limelightMeasurement.rawFiducials[0].distToCamera > 3){
@@ -704,10 +706,10 @@ public class SwerveSubsystem extends SubsystemBase {
     } else if(limelightMeasurement.rawFiducials[0].ambiguity > 0.7){
       rejectUpdate = true;
     }
+
     SmartDashboard.putBoolean("Rejecting Update", rejectUpdate);
     if(!rejectUpdate){
       this.swerveDrive.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds, VecBuilder.fill(.5,.5,9999999));
-      }
     }
   }
   /**

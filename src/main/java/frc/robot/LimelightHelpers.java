@@ -827,6 +827,7 @@ public class LimelightHelpers {
      * @param pose The PoseEstimate object to print. If null, prints "No PoseEstimate available."
      */
     public static void printPoseEstimate(PoseEstimate pose) {
+        if(true) return;
         if (pose == null) {
             System.out.println("No PoseEstimate available.");
             return;
