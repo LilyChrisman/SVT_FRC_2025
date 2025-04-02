@@ -131,6 +131,13 @@ public class RobotContainer {
     );
   }
 
+  Command armDownCommand() {
+    return Commands.deadline(
+      elevator.goToScoringGoal(ScoringGoal.PrepareIntake),
+      arm.goToScoringGoal(ScoringGoal.PrepareIntake)
+    );
+  }
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -154,9 +161,11 @@ public class RobotContainer {
       grabber.release().withTimeout(0.5)
     ));
 
+    // backing up from reef
+    NamedCommands.registerCommand("LowerArm", armDownCommand());
 
-     auto_Chooser = AutoBuilder.buildAutoChooser();
-     SmartDashboard.putData("Auto Chooser", auto_Chooser);
+    auto_Chooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", auto_Chooser);
     //Zeroes the gyro when the robot container is initialized
     drivebase.zeroGyro();
     //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
@@ -262,10 +271,7 @@ public class RobotContainer {
       utilityController.rightTrigger().whileTrue(grabber.activeIntake(-4));
       
       // elevator/arm preset positions
-      utilityController.a().onTrue(Commands.deadline(
-        elevator.goToScoringGoal(ScoringGoal.PrepareIntake),
-        arm.goToScoringGoal(ScoringGoal.PrepareIntake)
-      ));
+      utilityController.a().onTrue(armDownCommand());
       // scoring
       utilityController.y().onTrue(scoringCommand(ScoringGoal.L4));
       utilityController.x().onTrue(scoringCommand(ScoringGoal.L3));

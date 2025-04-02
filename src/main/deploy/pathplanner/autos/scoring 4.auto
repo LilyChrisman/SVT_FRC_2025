@@ -36,9 +36,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "backup middle"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "LowerArm"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "backup middle"
+                }
+              }
+            ]
           }
         }
       ]
