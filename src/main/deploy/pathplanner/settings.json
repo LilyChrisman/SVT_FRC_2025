@@ -4,13 +4,13 @@
   "holonomicMode": true,
   "pathFolders": [
     "Get Coral",
-    "testing",
     "score side 1",
     "score side 2",
     "score side 3",
     "score side 4",
     "score side 5",
     "score side 6",
+    "testing",
     "when mogged"
   ],
   "autoFolders": [

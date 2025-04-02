@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.647944078947368,
-        "y": 1.5522203947368416
+        "x": 5.038271832663267,
+        "y": 2.0682098078739797
       },
       "isLocked": false,
       "linkedName": "Score location side 5"
@@ -20,8 +20,8 @@
         "y": 0.6766447368421052
       },
       "prevControl": {
-        "x": 3.9886603280461346,
-        "y": 0.6693955028839219
+        "x": 3.6986617603316176,
+        "y": 1.2563804222670858
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,7 +34,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 2.25,
-    "maxAcceleration": 2.25,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

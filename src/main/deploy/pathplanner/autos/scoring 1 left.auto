@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "Move to 1 from start left"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -23,7 +29,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Move to 1 from start"
+                  "pathName": "Finish move to 1 left"
                 }
               }
             ]
@@ -48,7 +54,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Move to side from 1"
+                  "pathName": "Move to side from 1 left"
                 }
               }
             ]

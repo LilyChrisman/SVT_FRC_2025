@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.916694078947368,
-        "y": 6.3823190789473685
+        "x": 4.461830203605845,
+        "y": 6.719319473000528
       },
       "isLocked": false,
       "linkedName": "Score location side 3"
@@ -20,8 +20,8 @@
         "y": 7.01735197368421
       },
       "prevControl": {
-        "x": 4.589555921052631,
-        "y": 6.536266447368421
+        "x": 4.531957828415608,
+        "y": 6.189890558773504
       },
       "nextControl": null,
       "isLocked": false,

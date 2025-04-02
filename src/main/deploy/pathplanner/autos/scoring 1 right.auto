@@ -1,0 +1,69 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ArmIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Move to 1 from start right"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "PrepareL4"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Finish move to 1 right"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SheathScore"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "LowerArm"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Move to side from 1 right"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "scoring",
+  "choreoAuto": false
+}
