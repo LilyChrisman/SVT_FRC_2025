@@ -323,14 +323,9 @@ public class RobotContainer {
        //() -> drivebase.drive(new ChassisSpeeds(-1, 0, 0)),
        //drivebase
      //).withTimeout(1);
-
-<<<<<<< HEAD
-    return new PathPlannerAuto("scoring foward");
-=======
      return auto_Chooser.getSelected();
 
     //return new PathPlannerAuto("testi");
->>>>>>> 362090bbc6d7f0eea90acb98c7e98542a2a70fae
 
     //SmartDashboard.putData(auto_chooser);
   }
