@@ -158,7 +158,8 @@ public class RobotContainer {
       Commands.waitSeconds(0.5),
       arm.sheath(),
       Commands.waitSeconds(0.5),
-      grabber.release().withTimeout(0.5)
+      grabber.release().withTimeout(0.5),
+      grabber.passiveIntake().withTimeout(0.5)
     ));
 
     // backing up from reef

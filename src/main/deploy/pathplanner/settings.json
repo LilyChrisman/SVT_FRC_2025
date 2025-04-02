@@ -4,6 +4,7 @@
   "holonomicMode": true,
   "pathFolders": [
     "Get Coral",
+    "when mogged",
     "score side 1",
     "score side 2",
     "score side 3",
@@ -11,7 +12,10 @@
     "score side 5",
     "score side 6"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "non scoring",
+    "scoring"
+  ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,
