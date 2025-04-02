@@ -233,7 +233,7 @@ public class RobotContainer {
       // ground intake control
       driverController.L2().whileTrue(
         Commands.run(() -> {
-          intake.runIntake(1.5);
+          intake.runIntake(1);
         }, intake)
       );
       driverController.R2().onTrue(
