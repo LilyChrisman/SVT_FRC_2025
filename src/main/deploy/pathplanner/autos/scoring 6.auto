@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "Move to 6 from Start"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -23,7 +29,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Move to 6 from Start"
+                  "pathName": "Finish move to 6"
                 }
               }
             ]

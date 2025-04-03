@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.591529605263157,
-        "y": 1.9274671052631585
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 5.215821912885673,
-        "y": 1.9452608088664407
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
         "x": 4.998872950819672,
         "y": 2.02904713114754
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.252435117260848,
+        "y": 1.9978949259888088
+      },
+      "isLocked": false,
+      "linkedName": "Score location 3"
+    },
+    {
+      "anchor": {
+        "x": 3.8871710526315786,
+        "y": 2.591365131578947
+      },
       "prevControl": {
-        "x": 5.2280989691686965,
-        "y": 1.884166879840453
+        "x": 3.6523156788596483,
+        "y": 2.6770561661767798
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Score location 3"
+      "linkedName": "Score location side 6"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 10.0,
-    "maxAcceleration": 5.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 0.75,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -48,7 +48,7 @@
   "folder": "score side 6",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 59.99999999999999
   },
   "useDefaultConstraints": false
 }
