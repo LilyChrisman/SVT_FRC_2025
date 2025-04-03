@@ -700,19 +700,7 @@ public class SwerveSubsystem extends SubsystemBase {
     } else{
       LimelightHelpers.SetRobotOrientation("limelight",this.getHeading().getDegrees(), 0, 0, 0, 0, 0);
     }
-    
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT);
-  /*   if(ally.isPresent() && ally.get() == Alliance.Blue){
-      limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LIMELIGHT);
-      if(limelightMeasurement.tagCount == 0){
-        rejectUpdate = true;
-      } else if(limelightMeasurement.rawFiducials[0].distToCamera > 1){
-        rejectUpdate = true;
-      } else if(limelightMeasurement.rawFiducials[0].ambiguity > 0.85){
-        rejectUpdate = true;
-      }
-    }
-      */
     if(Math.abs(swerveDrive.getRobotVelocity().omegaRadiansPerSecond) > 2*Math.PI){ // if our angular velocity is greater than 360 degrees per second, ignore vision updates
       rejectUpdate = true;
     }
