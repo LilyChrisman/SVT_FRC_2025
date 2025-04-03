@@ -25,8 +25,8 @@ public class AutoAlign extends Command{
     public final double DONT_SEE_TAG_WAIT_TIME = 3;
     public final double POSE_VALIDATION_TIME = 0.3;
 
-    public final double X_REEF_ALIGNMENT_P = 1.25;
-    public final double Y_REEF_ALIGNMENT_P = 1;
+    public final double X_REEF_ALIGNMENT_P = 1.5;
+    public final double Y_REEF_ALIGNMENT_P = 1.25;
     public final double REEF_ALIGNMENT_D = 0.000;
     public final double ROT_REEF_ALIGNMENT_P = 0;
 
