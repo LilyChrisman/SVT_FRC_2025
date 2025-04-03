@@ -139,7 +139,7 @@ public class ArmSubsystem extends SubsystemBase{
 
         if (this.isManual) {
             // direction inverted so it's good
-            this.runMotorManual(-RobotContainer.utilityController.getRightY());
+            this.runMotorManual(-RobotContainer.utilityController.getRightY()*1.2);
         }
 
         // bad hacky i hate it

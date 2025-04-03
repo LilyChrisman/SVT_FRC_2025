@@ -101,7 +101,7 @@ public class ElevatorSubsystem extends SubsystemBase{
          */
 
         if (this.isManual) {
-            this.runMotorManual(RobotContainer.utilityController.getLeftY());
+            this.runMotorManual(RobotContainer.utilityController.getLeftY()*1.2);
         }
         
     }
