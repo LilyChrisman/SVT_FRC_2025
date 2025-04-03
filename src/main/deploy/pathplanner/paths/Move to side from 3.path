@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.080263157894737,
-        "y": 5.458634868421052
+        "x": 5.05,
+        "y": 5.439
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.461830203605845,
-        "y": 6.719319473000528
+        "x": 4.431567045711108,
+        "y": 6.699684604579476
       },
       "isLocked": false,
       "linkedName": "Score location side 3"

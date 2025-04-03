@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.8871710526315786,
-        "y": 2.591365131578947
+        "y": 2.611
       },
       "prevControl": null,
       "nextControl": {
         "x": 3.5236677056802783,
-        "y": 1.59371941268825
+        "y": 1.6133542811093031
       },
       "isLocked": false,
       "linkedName": "Score location 3"

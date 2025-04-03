@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 5.397779605263157,
-        "y": 2.764555921052631
+        "y": 2.785
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.038271832663267,
-        "y": 2.0682098078739797
+        "y": 2.0886538868213487
       },
       "isLocked": false,
       "linkedName": "Score location side 5"

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.05,
+        "x": 6.0,
         "y": 4.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.812171052631578,
-        "y": 6.10328947368421
+        "x": 6.762171052631579,
+        "y": 6.103289473684211
       },
       "isLocked": false,
       "linkedName": "a little away from reef middle"
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 3.136358368332474
+    "rotation": 3.1363583683324743
   },
   "reversed": false,
   "folder": "score side 4",

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.05,
+        "x": 6.0,
         "y": 4.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.629358552631578,
-        "y": 4.178947368421053
+        "x": 6.579358552631578,
+        "y": 4.178947368421054
       },
       "isLocked": false,
       "linkedName": "a little away from reef middle"
