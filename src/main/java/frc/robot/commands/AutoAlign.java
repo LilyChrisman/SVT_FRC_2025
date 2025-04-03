@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -27,12 +28,12 @@ public class AutoAlign extends Command{
     public final double X_REEF_ALIGNMENT_P = 1.25;
     public final double Y_REEF_ALIGNMENT_P = 1;
     public final double REEF_ALIGNMENT_D = 0.000;
-    public final double ROT_REEF_ALIGNMENT_P = .15;
+    public final double ROT_REEF_ALIGNMENT_P = 0;
 
     public final double ROT_SETPOINT_REEF_ALIGNMENT = 0;
     public final double ROT_TOLERANCE_REEF_ALIGNMENT = .5;
 
-    public final double X_SETPOINT_REEF_ALIGNMENT = -.8;
+    public final double X_SETPOINT_REEF_ALIGNMENT = -.5;
     public final double X_TOLERANCE_REEF_ALIGNMENT = .08;
 
     public final double Y_SETPOINT_REEF_ALIGNMENT = 0.1;

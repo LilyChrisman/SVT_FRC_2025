@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,6 +37,7 @@ import frc.robot.subsystems.IntakeSubsystem.IntakePosition;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import java.io.File;
+import java.sql.Driver;
 import java.util.function.Function;
 import swervelib.SwerveInputStream;
 
@@ -189,6 +191,8 @@ public class RobotContainer {
 
   }
 
+  
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary predicate, or via the
@@ -234,12 +238,12 @@ public class RobotContainer {
       // ground intake control
       driverController.L2().whileTrue(
         Commands.run(() -> {
-          intake.runIntake(1);
+          intake.runIntake(2);
         }, intake)
       );
       driverController.R2().onTrue(
         Commands.run(() -> {
-          intake.runIntake(-3);
+          intake.runIntake(-3.2);
         }, intake)
       );
       driverController.R2().onFalse(
@@ -304,12 +308,16 @@ public class RobotContainer {
   long runningTime = 2000;
   public Command getAutonomousCommand() {
     // drive
-     //return Commands.run(
-       //() -> drivebase.drive(new ChassisSpeeds(-1, 0, 0)),
-       //drivebase
-     //).withTimeout(1);
-     return auto_Chooser.getSelected();
-
+    //var ally = DriverStation.getAlliance();
+    var auto = auto_Chooser.getSelected();
+    if(auto != null) {
+      return auto;
+    } else {
+      return Commands.run(
+        () -> drivebase.drive(new ChassisSpeeds(1, 0, 0)),
+        drivebase
+      ).withTimeout(1);
+    }
     //return new PathPlannerAuto("testi");
 
     //SmartDashboard.putData(auto_chooser);

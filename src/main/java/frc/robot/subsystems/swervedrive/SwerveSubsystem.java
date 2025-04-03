@@ -74,7 +74,7 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * Swerve drive object.
    */
-  private final SwerveDrive swerveDrive;
+  public final SwerveDrive swerveDrive;
   
 
   private final String LIMELIGHT = "";
@@ -170,7 +170,6 @@ public class SwerveSubsystem extends SubsystemBase {
   
   @Override
   public void periodic() {
-    LimelightHelpers.printPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue(LIMELIGHT));
     this.swerveDrive.updateOdometry();
     updateVisionOdometry();
 
@@ -696,6 +695,10 @@ public class SwerveSubsystem extends SubsystemBase {
     boolean rejectUpdate = false;
     LimelightHelpers.SetRobotOrientation("limelight",this.getHeading().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LIMELIGHT);
+    var ally = DriverStation.getAlliance();
+    if(ally.isPresent() && ally.get() == Alliance.Blue){
+      limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LIMELIGHT);
+    }
     if(Math.abs(swerveDrive.getRobotVelocity().omegaRadiansPerSecond) > 2*Math.PI){ // if our angular velocity is greater than 360 degrees per second, ignore vision updates
       rejectUpdate = true;
     }
