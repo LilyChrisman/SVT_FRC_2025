@@ -706,7 +706,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
     if(limelightMeasurement.tagCount == 0){
       rejectUpdate = true;
-    } else if(limelightMeasurement.rawFiducials[0].distToCamera > 3){
+    } else if(limelightMeasurement.rawFiducials[0].distToCamera > 4){
       rejectUpdate = true;
     } else if(limelightMeasurement.rawFiducials[0].ambiguity > 0.7){
       rejectUpdate = true;
