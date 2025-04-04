@@ -10,6 +10,8 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -62,11 +64,22 @@ public class RobotContainer {
 
   private final Field2d field;
 
+  private SlewRateLimiter xLimiter = new SlewRateLimiter(3);
+  private SlewRateLimiter yLimiter = new SlewRateLimiter(3);
+  private SlewRateLimiter rotLimiter = new SlewRateLimiter(3);
+  private final SlewRateLimiter headingXLimiter = new SlewRateLimiter(3.0);
+  private final SlewRateLimiter headingYLimiter = new SlewRateLimiter(3.0);
+
   void setDriveIsSlow(boolean isSlow) {
     this.driveIsDefaultSpeed = !isSlow;
     this.drivebase.setMaxSpeed(
       this.driveIsDefaultSpeed ? Constants.MAX_SPEED : Constants.SLOWED_SPEED
     );
+  }
+
+  double smoothInput(double input) {
+    input = MathUtil.applyDeadband(input, OperatorConstants.DEADBAND);
+    return Math.copySign(input*input, input);
   }
 
   SendableChooser<Command> auto_Chooser = new SendableChooser<>();
@@ -83,9 +96,9 @@ public class RobotContainer {
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
     drivebase.getSwerveDrive(),
-    () -> driverController.getLeftY(),
-    () -> driverController.getLeftX()
-  ).withControllerRotationAxis(driverController::getRightX)
+    () -> xLimiter.calculate(smoothInput(driverController.getLeftY())),
+    () -> yLimiter.calculate(smoothInput(driverController.getLeftX()))
+  ).withControllerRotationAxis(() -> rotLimiter.calculate(smoothInput(driverController.getRightX())))
   .deadband(OperatorConstants.DEADBAND)
   .scaleTranslation(1)
   .allianceRelativeControl(true);
@@ -95,8 +108,8 @@ public class RobotContainer {
    */
   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
     .withControllerHeadingAxis(
-      () -> driverController.getRightX(),
-      () -> driverController.getRightY()
+      () -> headingXLimiter.calculate(smoothInput(driverController.getRightX())),
+      () -> headingYLimiter.calculate(smoothInput(driverController.getRightY()))
     ).headingWhile(true);
 
   /**
