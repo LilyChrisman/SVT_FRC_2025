@@ -167,6 +167,11 @@ public class RobotContainer {
     // backing up from reef
     NamedCommands.registerCommand("LowerArm", armDownCommand());
 
+    //Pickup Coral
+    NamedCommands.registerCommand("PickupCoral", Commands.run(() -> {
+      intake.runIntake(-3.2);
+    }, intake));
+
     auto_Chooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", auto_Chooser);
     //Zeroes the gyro when the robot container is initialized
