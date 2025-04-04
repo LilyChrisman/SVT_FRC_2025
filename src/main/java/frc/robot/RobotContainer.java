@@ -137,7 +137,7 @@ public class RobotContainer {
     return Commands.deadline(
       elevator.goToScoringGoal(ScoringGoal.PrepareIntake),
       arm.goToScoringGoal(ScoringGoal.PrepareIntake)
-    );
+    ).withTimeout(0.3);
   }
 
   /**
@@ -170,7 +170,12 @@ public class RobotContainer {
     //Pickup Coral
     NamedCommands.registerCommand("PickupCoral", Commands.run(() -> {
       intake.runIntake(-3.2);
-    }, intake));
+    }, intake).withTimeout(0.1));
+    NamedCommands.registerCommand("StopGroundIntake", Commands.run(() -> {
+      intake.runIntake(0);
+    }, intake).withTimeout(0.1));
+    NamedCommands.registerCommand("IntakeUp", intake.goToPos(IntakePosition.Up).withTimeout(0.5));
+    NamedCommands.registerCommand("IntakeDown", intake.goToPos(IntakePosition.Down).withTimeout(0.5));
 
     auto_Chooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", auto_Chooser);
@@ -278,7 +283,7 @@ public class RobotContainer {
       // extake / intake
       utilityController.leftBumper().whileTrue(grabber.release());
       utilityController.rightBumper().onTrue(elevator.runIntake(grabber));
-      utilityController.rightTrigger().whileTrue(grabber.activeIntake(-4));
+      utilityController.rightTrigger().whileTrue(grabber.activeIntake(0.4));
       
       // elevator/arm preset positions
       utilityController.a().onTrue(armDownCommand());
