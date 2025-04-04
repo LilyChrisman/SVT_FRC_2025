@@ -21,7 +21,7 @@ public class ArmSubsystem extends SubsystemBase{
     //set positions for the arm to score
     protected double posForL4 = 44;
     protected double posForL3 = 44;
-    protected double posForL2 = 32;
+    protected double posForL2 = 28;
     protected double posForL1 = 18;
     protected double posForCoralIntake = -1;
     
