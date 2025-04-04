@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.558992346938776,
-        "y": 0.24563137755101927
+        "x": 5.014285714285714,
+        "y": 1.0514987244897955
       },
       "isLocked": false,
       "linkedName": "Score location side 5"
     },
     {
       "anchor": {
-        "x": 1.8430484693877551,
-        "y": 1.081345663265305
+        "x": 1.7236607142857145,
+        "y": 0.8649553571428567
       },
       "prevControl": {
-        "x": 3.0667729591836737,
-        "y": 2.0737563775510193
+        "x": 3.6562500000000013,
+        "y": 3.5884885204081653
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,7 +30,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5411140583554374,
+      "waypointRelativePos": 0.7307692307692312,
       "rotationDegrees": 53.0
     }
   ],

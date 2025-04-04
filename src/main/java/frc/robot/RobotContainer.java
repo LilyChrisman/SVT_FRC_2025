@@ -177,6 +177,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("IntakeUp", intake.goToPos(IntakePosition.Up).withTimeout(0.5));
     NamedCommands.registerCommand("IntakeDown", intake.goToPos(IntakePosition.Down).withTimeout(0.5));
 
+    // logging
+    NamedCommands.registerCommand("PrintTest", Commands.print("MADE IT TO THE PRINT!!!!!!!!"));
+
     auto_Chooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", auto_Chooser);
     //Zeroes the gyro when the robot container is initialized

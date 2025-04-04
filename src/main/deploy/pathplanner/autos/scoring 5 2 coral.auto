@@ -61,40 +61,39 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "PrintTest"
+          }
+        },
+        {
           "type": "wait",
           "data": {
             "waitTime": 0.5
           }
         },
         {
-          "type": "sequential",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "StopGroundIntake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeUp"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IntakeDown"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ArmIntake"
-                }
-              }
-            ]
+            "name": "StopGroundIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeUp"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeDown"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ArmIntake"
           }
         },
         {
