@@ -85,7 +85,7 @@ public class IntakeSubsystem extends SubsystemBase{
         return Commands.run(() -> {
             this.runIntake(0);
             this.rotatorMotor.setControl(request);
-        }, this).withTimeout(time).andThen(Commands.run(() -> {
+        }, this).withTimeout(time).andThen(Commands.runOnce(() -> {
             this.rotatorMotor.setControl(idleReq);
         }, this));
     }

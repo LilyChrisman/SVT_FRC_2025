@@ -174,8 +174,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("StopGroundIntake", Commands.run(() -> {
       intake.runIntake(0);
     }, intake).withTimeout(0.1));
-    NamedCommands.registerCommand("IntakeUp", intake.goToPos(IntakePosition.Up).withTimeout(0.5));
-    NamedCommands.registerCommand("IntakeDown", intake.goToPos(IntakePosition.Down).withTimeout(0.5));
+    NamedCommands.registerCommand("IntakeUp", intake.goToPos(IntakePosition.Up));
+    NamedCommands.registerCommand("IntakeDown", intake.goToPos(IntakePosition.Down));
 
     // logging
     NamedCommands.registerCommand("PrintTest", Commands.print("MADE IT TO THE PRINT!!!!!!!!"));
@@ -321,7 +321,6 @@ public class RobotContainer {
   long runningTime = 2000;
   public Command getAutonomousCommand() {
     // drive
-    //var ally = DriverStation.getAlliance();
     var auto = auto_Chooser.getSelected();
     if(auto != null) {
       return auto;
@@ -331,9 +330,6 @@ public class RobotContainer {
         drivebase
       ).withTimeout(1);
     }
-    //return new PathPlannerAuto("testi");
-
-    //SmartDashboard.putData(auto_chooser);
   }
 
   public void setMotorBrake(boolean brake) {
