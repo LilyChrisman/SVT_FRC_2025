@@ -234,81 +234,74 @@ public class RobotContainer {
 
     }
 
-    if(DriverStation.isTest()) {
-      utilityController.y().onTrue(scoringCommand(ScoringGoal.L4));
-      utilityController.x().onTrue(scoringCommand(ScoringGoal.L3));
-      utilityController.b().onTrue(scoringCommand(ScoringGoal.L2));
-    } else {
-      // All controller inputs for main teleop mode
-      // driver
-      driverController.options()
-        .onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverController.L3()
-        .onTrue(Commands.runOnce(() -> {
-          this.setDriveIsSlow(true);
-        }));
-      
-      // ground intake control
-      driverController.L2().whileTrue(
-        Commands.run(() -> {
-          intake.runIntake(2);
-        }, intake)
-      );
-      driverController.R2().onTrue(
-        Commands.run(() -> {
-          intake.runIntake(-3.2);
-        }, intake)
-      );
-      driverController.R2().onFalse(
-        Commands.run(() -> {
-          intake.runIntake(0);
-        }, intake)
-      );
-      driverController.circle().onTrue(
-        Commands.run(() -> {
-          this.setDriveIsSlow(false);
-          intake.runIntake(0);
-        }, intake)
-      );
-      driverController.R1().onTrue(
-        intake.goToPos(IntakePosition.Down)
-      );
-      driverController.L1().onTrue(
-        intake.goToPos(IntakePosition.Up)
-      );
-      // reset state, and stop commands
-      driverController.triangle().onTrue(intake.killSwitch());
+    boolean childSafe = DriverStation.isTest();
+    this.setDriveIsSlow(childSafe);
 
-      driverController.povRight().whileTrue(new AutoAlign(true, drivebase));
-      driverController.povLeft().whileTrue(new AutoAlign(false, drivebase));   
+    // All controller inputs for main teleop mode
+    // driver
+    driverController.options()
+      .onTrue((Commands.runOnce(drivebase::zeroGyro)));
+    
+    // ground intake control
+    driverController.L2().whileTrue(
+      Commands.run(() -> {
+        intake.runIntake(2);
+      }, intake)
+    );
+    driverController.R2().onTrue(
+      Commands.run(() -> {
+        intake.runIntake(-3.2);
+      }, intake)
+    );
+    driverController.R2().onFalse(
+      Commands.run(() -> {
+        intake.runIntake(0);
+      }, intake)
+    );
+    driverController.circle().onTrue(
+      Commands.run(() -> {
+        this.setDriveIsSlow(false);
+        intake.runIntake(0);
+      }, intake)
+    );
+    driverController.R1().onTrue(
+      intake.goToPos(IntakePosition.Down)
+    );
+    driverController.L1().onTrue(
+      intake.goToPos(IntakePosition.Up)
+    );
+    // reset state, and stop commands
+    driverController.triangle().onTrue(intake.killSwitch());
 
-      // operator
-      // extake / intake
-      utilityController.leftBumper().whileTrue(grabber.release());
-      utilityController.rightBumper().onTrue(elevator.runIntake(grabber));
-      utilityController.rightTrigger().whileTrue(grabber.activeIntake(0.4));
-      
-      // elevator/arm preset positions
-      utilityController.a().onTrue(armDownCommand());
-      // scoring
-      utilityController.y().onTrue(scoringCommand(ScoringGoal.L4));
-      utilityController.x().onTrue(scoringCommand(ScoringGoal.L3));
-      utilityController.b().onTrue(scoringCommand(ScoringGoal.L2));
+    driverController.povRight().whileTrue(new AutoAlign(true, drivebase));
+    driverController.povLeft().whileTrue(new AutoAlign(false, drivebase));   
 
-      // manual override toggle for controlling the elevator
-      utilityController.povLeft()
-        .onTrue(Commands.runOnce(elevator::toggleManual));
-      // manual override toggle for controlling the arm
-      utilityController.povRight()
-        .onTrue(Commands.runOnce(arm::toggleManual));
-      // go down
-      utilityController.povDown().onTrue(elevator.goToScoringGoal(ScoringGoal.Intake));
+    // operator
+    // extake / intake
+    utilityController.leftBumper().whileTrue(grabber.release());
+    utilityController.rightBumper().onTrue(elevator.runIntake(grabber));
+    utilityController.rightTrigger().whileTrue(grabber.activeIntake(0.4));
+    
+    // elevator/arm preset positions
+    utilityController.a().onTrue(armDownCommand());
+    // scoring
+    utilityController.y().onTrue(scoringCommand(ScoringGoal.L4));
+    utilityController.x().onTrue(scoringCommand(ScoringGoal.L3));
+    utilityController.b().onTrue(scoringCommand(ScoringGoal.L2));
 
-      // set elevator zero position manually
-      // I don't think this does anything
-      utilityController.start()
-        .onTrue(Commands.runOnce(elevator::zeroPosition));
-    }
+    // manual override toggle for controlling the elevator
+    utilityController.povLeft()
+      .onTrue(Commands.runOnce(elevator::toggleManual));
+    // manual override toggle for controlling the arm
+    utilityController.povRight()
+      .onTrue(Commands.runOnce(arm::toggleManual));
+    // go down
+    utilityController.povDown().onTrue(elevator.goToScoringGoal(ScoringGoal.Intake));
+
+    // set elevator zero position manually
+    // I don't think this does anything
+    utilityController.start()
+      .onTrue(Commands.runOnce(elevator::zeroPosition));
   }
 
   /**
