@@ -6,26 +6,18 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoAlign;
 import frc.robot.subsystems.ArmSubsystem;
@@ -35,10 +27,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.IntakePosition;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import java.io.File;
-import java.sql.Driver;
-import java.util.function.Function;
 import swervelib.SwerveInputStream;
 
 /**
@@ -87,39 +76,7 @@ public class RobotContainer {
     () -> driverController.getLeftX()
   ).withControllerRotationAxis(driverController::getRightX)
   .deadband(OperatorConstants.DEADBAND)
-  .scaleTranslation(1)
   .allianceRelativeControl(true);
-
-  /**
-   * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
-   */
-  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
-    .withControllerHeadingAxis(
-      () -> driverController.getRightX(),
-      () -> driverController.getRightY()
-    ).headingWhile(true);
-
-  /**
-   * Clone's the angular velocity input stream and converts it to a robotRelative input stream.
-   */
-  SwerveInputStream driveRobotOriented = driveAngularVelocity.copy()
-    .robotRelative(true)
-    .allianceRelativeControl(false);
-
-  SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(
-    drivebase.getSwerveDrive(),
-    () -> -driverController.getLeftY(),
-    () -> -driverController.getLeftX()
-  ).withControllerRotationAxis(() -> driverController.getRawAxis(2))
-    .deadband(OperatorConstants.DEADBAND)
-    .scaleTranslation(0.8)
-    .allianceRelativeControl(true);
-  // Derive the heading axis with math!
-  SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
-    .withControllerHeadingAxis(
-      () -> Math.sin(driverController.getRawAxis(2) * Math.PI) * (Math.PI * 2),
-      () -> Math.cos(driverController.getRawAxis(2) * Math.PI) * (Math.PI * 2)
-    ).headingWhile(true);
 
   // composing a deadline of commands into a funtion
   Command scoringCommand(ScoringGoal goal) {
@@ -214,20 +171,11 @@ public class RobotContainer {
    * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
    */
   private void configureBindings() {
-    Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
+  
     Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-    Command driveRobotOrientedAngularVelocity  = drivebase.driveFieldOriented(driveRobotOriented);
-    Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
-    Command driveFieldOrientedDirectAngleKeyboard      = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-    Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
-    Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngleKeyboard);
 
-    if (RobotBase.isSimulation()) {
-      drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
-    } else {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-    }
-
+    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    
     boolean childSafe = DriverStation.isTest();
     this.setDriveIsSlow(childSafe);
 
