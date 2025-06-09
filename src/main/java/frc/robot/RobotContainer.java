@@ -48,7 +48,7 @@ import swervelib.SwerveInputStream;
  */
 public class RobotContainer {
   // Initializing our two controllers
-  public static final CommandPS4Controller driverController = new CommandPS4Controller(0);
+  public static final CommandXboxController driverController = new CommandXboxController(0);
   public static final CommandXboxController utilityController = new CommandXboxController(1);
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem drivebase = new SwerveSubsystem(
@@ -186,7 +186,7 @@ public class RobotContainer {
     drivebase.zeroGyro();
     //When the grabber is neither grabbing or releasing, it runs inward very slowly to hold any coral
     grabber.setDefaultCommand(grabber.passiveIntake());
-    intake.setDefaultCommand(intake.goToPos(IntakePosition.Up));
+    intake.setDefaultCommand(intake.goToPos(IntakePosition.None));
 
     field = new Field2d();
     drivebase.field = field;
@@ -228,50 +228,44 @@ public class RobotContainer {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
 
-    if (Robot.isSimulation()) {
-      driverController.options().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      driverController.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
-
-    }
-
     boolean childSafe = DriverStation.isTest();
     this.setDriveIsSlow(childSafe);
 
     // All controller inputs for main teleop mode
     // driver
-    driverController.options()
+    driverController.start()
       .onTrue((Commands.runOnce(drivebase::zeroGyro)));
     
     // ground intake control
-    driverController.L2().whileTrue(
+    driverController.leftTrigger().whileTrue(
       Commands.run(() -> {
         intake.runIntake(2);
       }, intake)
     );
-    driverController.R2().onTrue(
+    driverController.rightTrigger().onTrue(
       Commands.run(() -> {
         intake.runIntake(-3.2);
       }, intake)
     );
-    driverController.R2().onFalse(
+    driverController.rightTrigger().onFalse(
       Commands.run(() -> {
         intake.runIntake(0);
       }, intake)
     );
-    driverController.circle().onTrue(
+    driverController.b().onTrue(
       Commands.run(() -> {
         this.setDriveIsSlow(false);
         intake.runIntake(0);
       }, intake)
     );
-    driverController.R1().onTrue(
+    driverController.rightBumper().onTrue(
       intake.goToPos(IntakePosition.Down)
     );
-    driverController.L1().onTrue(
+    driverController.leftBumper().onTrue(
       intake.goToPos(IntakePosition.Up)
     );
     // reset state, and stop commands
-    driverController.triangle().onTrue(intake.killSwitch());
+    driverController.y().onTrue(intake.killSwitch());
 
     driverController.povRight().whileTrue(new AutoAlign(true, drivebase));
     driverController.povLeft().whileTrue(new AutoAlign(false, drivebase));   
