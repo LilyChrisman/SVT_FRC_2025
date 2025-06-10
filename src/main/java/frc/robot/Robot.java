@@ -24,7 +24,7 @@ public class Robot extends TimedRobot
 {
 
   private static Robot   instance;
-  private        Command m_autonomousCommand;
+  private Command m_autonomousCommand;
 
 
   private RobotContainer m_robotContainer;

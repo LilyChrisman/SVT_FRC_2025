@@ -255,16 +255,20 @@ public class RobotContainer {
   long startingTime = 0;
   long runningTime = 2000;
   public Command getAutonomousCommand() {
-    // drive
-    var auto = auto_Chooser.getSelected();
-    if(auto != null) {
-      return auto;
-    } else {
-      return Commands.run(
-        () -> drivebase.drive(new ChassisSpeeds(1, 0, 0)),
+    // // drive
+    // var auto = auto_Chooser.getSelected();
+    // if(auto != null) {
+    //   return auto;
+    // } else {
+      return 
+      //   () -> drivebase.drive(new ChassisSpeeds(1, 0, 0)),
+      //   drivebase
+      // ).withTimeout(1);
+      Commands.run(
+        () -> drivebase.drive(new ChassisSpeeds(1, 1, 1)),
         drivebase
-      ).withTimeout(1);
-    }
+        ).withTimeout(2);
+  //   }
   }
 
   public void setMotorBrake(boolean brake) {
