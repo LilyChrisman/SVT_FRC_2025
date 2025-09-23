@@ -17,6 +17,8 @@ public class IntakeSubsystem extends SubsystemBase{
     public final TalonFX rotatorMotor = new TalonFX(51, "rio");
     public final TalonFX wheelMotor = new TalonFX(52, "rio");
 
+    private double wheelSpeed = 0;
+
     private final double IDLE_POS = 0;
     private final double INTAKE_POS = -0.07;
     private final double TRANSFER_POS = -2.55;
@@ -103,14 +105,15 @@ public class IntakeSubsystem extends SubsystemBase{
     }
 
     public void runIntake(double speed){
-        final VoltageOut m_request = new VoltageOut(speed);
-        wheelMotor.setControl(m_request);
+        wheelSpeed = speed;
     }
 
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Rotake Position", this.rotatorMotor.getPosition().getValueAsDouble());
-       
+        SmartDashboard.putNumber("Rotate Position", this.rotatorMotor.getPosition().getValueAsDouble());
+
+        wheelMotor.setControl(new VoltageOut(wheelSpeed));
+        wheelSpeed = 0;
     }
 }

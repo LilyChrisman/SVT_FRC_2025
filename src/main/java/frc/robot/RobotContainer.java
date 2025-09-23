@@ -190,14 +190,9 @@ public class RobotContainer {
         intake.runIntake(2);
       }, intake)
     );
-    driverController.rightTrigger().onTrue(
+    driverController.rightTrigger().whileTrue(
       Commands.run(() -> {
         intake.runIntake(-3.2);
-      }, intake)
-    );
-    driverController.rightTrigger().onFalse(
-      Commands.run(() -> {
-        intake.runIntake(0);
       }, intake)
     );
     driverController.b().onTrue(
